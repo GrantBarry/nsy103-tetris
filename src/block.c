@@ -138,7 +138,7 @@ void bl_move_left(void) {
 }
 
 void bl_move_right(void) {
-	if (current_block.x < ((BOARD_WIDTH-1)-current_block.sizeX))
+	if (current_block.x < ((BOARD_WIDTH)-current_block.sizeX))
 		current_block.x++;
 }
 

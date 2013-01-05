@@ -29,6 +29,8 @@ void g_cycle(int kb_input) {
 		bl_reset();
 		bl_set_block_type((current_block.type+1)%5);
 	}
+
+	b_remove_lines();
 }
 
 void g_manage_kb(int kb_input) {

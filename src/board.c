@@ -94,3 +94,36 @@ void b_drop_block(void) {
 	}
 }
 
+// Remove full lines
+void b_remove_lines(void) {
+	int x, y, i;
+	for (y = 0; y < BOARD_HEIGHT; y++) {
+		i = 0;
+		for (x = 0; x < BOARD_WIDTH; x++) {
+			i += board[x][y];
+		}
+		if (i == BOARD_WIDTH) {// We have a full line
+			b_remove_line(y);
+		}
+	}	
+}
+
+void b_remove_line(int line) {
+	int x, y;
+	
+	if (line > BOARD_HEIGHT) {
+		return;
+	}
+	
+	if (line > 0) {
+		for (y = line; y > 0; y--) {
+			for (x = 0; x < BOARD_WIDTH; x++) {
+				board[x][y] = board[x][y-1];
+			}		
+		}		
+	}
+	// Set the first line (y = 0) to 0
+	for (x = 0; x < BOARD_WIDTH; x++) {
+		board[x][0] = 0;
+	}
+}
