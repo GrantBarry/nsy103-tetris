@@ -45,6 +45,10 @@ void g_manage_kb(int kb_input) {
 		case 'Z':
 			bl_rotate_right();
 			return;
+		case 'r':
+		case 'R':
+			bl_reflect();
+			return;
 		case KEY_LEFT:
 			bl_move_left();
 			return;

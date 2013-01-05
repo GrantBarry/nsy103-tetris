@@ -157,24 +157,14 @@ void bl_rotate_right(void) {
 	}
 
 	memcpy(&copy, &current_block, sizeof(copy));
-	/*
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			copy.tab[x][y] = block.tab[x][y];
-		}
-	}*/
+
 	for (y = 0; y < BLOCK_HEIGHT; y++) {
 		for (x = 0; x < BLOCK_WIDTH; x++) {
 			current_block.tab[y][BLOCK_HEIGHT-x] = copy.tab[x][y];
 		}
 	}
 	
-	/*
-	x = block.sizeX;
-	block.sizeX = block.sizeY;
-	block.sizeY = x;
-	*/
-	swap(current_block.sizeX, current_block.sizeY);
+	swap(&current_block.sizeX, &current_block.sizeY);
 	
 	// Eat the empty lines / move the block up to the top-left
 	bl_clean();
@@ -191,24 +181,14 @@ void bl_rotate_left(void) {
 	}
 	
 	memcpy(&copy, &current_block, sizeof(copy));
-	/*
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			copy.tab[x][y] = block.tab[x][y];
-		}
-	}*/
+
 	for (y = 0; y < BLOCK_HEIGHT; y++) {
 		for (x = 0; x < BLOCK_WIDTH; x++) {
 			current_block.tab[y][x] = copy.tab[x][y];
 		}
 	}
 
-	/*
-	x = block.sizeX;
-	block.sizeX = block.sizeY;
-	block.sizeY = x;
-	*/
-	swap(current_block.sizeX, current_block.sizeY);
+	swap(&current_block.sizeX, &current_block.sizeY);
 	
 	// Eat the empty lines / move the block up to the top-left
 	bl_clean();
@@ -225,12 +205,7 @@ void bl_reflect(void) {
 	}
 
 	memcpy(&copy, &current_block, sizeof(copy));
-	/*
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			copy.tab[x][y] = block.tab[x][y];
-		}
-	}*/
+
 	for (y = 0; y < BLOCK_HEIGHT; y++) {
 		for (x = 0; x < BLOCK_WIDTH; x++) {
 			current_block.tab[BLOCK_WIDTH-x][y] = copy.tab[x][y];
