@@ -48,25 +48,6 @@ void bl_set_block_type(enum block_type t) {
 	}
 
 	bl_set_max_sizes(&current_block);
-/*
-	switch (t) {
-		case i_block:
-			bl_set_i();
-			break;
-		case l_block:
-			bl_set_l();
-			break;
-		case o_block:
-			bl_set_o();
-			break;
-		case s_block:
-			bl_set_s();
-			break;
-		case t_block:
-			bl_set_t();
-			break;
-		}
-*/
 }
 
 void bl_reset() {
@@ -135,14 +116,12 @@ void bl_reflect(void) {
 
 	memcpy(&copy, &current_block, sizeof(copy));
 
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[BLOCK_WIDTH-x][y] = copy.tab[x][y];
+	for (y = 0; y < current_block.sizeY; y++) {
+		for (x = 0; x < current_block.sizeX; x++) {
+			current_block.tab[(current_block.sizeX-1)-x][y] = copy.tab[x][y];
 		}
 	}
-	
-	// Eat the empty lines / move the block up to the top-left
-//	bl_clean();
+	bl_set_max_sizes(&current_block);
 }
 
 void bl_draw(void) {
