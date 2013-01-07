@@ -7,7 +7,7 @@ void g_new_game(void) {
 
 	// If not connected, generate a block
 	if (net_connected == 0) {
-		bl_set_block_type(l_block);
+		bl_set_block_type(i_block);
 	}
 }
 
@@ -15,9 +15,9 @@ void g_cycle(int kb_input) {
 	int x, y;
 
 	g_manage_kb(kb_input);
-	bl_move_down();
+	bl_move_down(&current_block);
 
-	if (b_does_collide() == 1) {
+	if (b_does_collide(&current_block) == 1) {
 		for (y = 0; y < current_block.sizeY; y++) {
 			for (x = 0; x < current_block.sizeX; x++) {
 				if (current_block.tab[x][y] == 1) {
@@ -58,7 +58,7 @@ void g_manage_kb(int kb_input) {
 			bl_move_right();
 			return;
 		case KEY_DOWN:
-			b_drop_block();
+			b_drop_block(&current_block);
 			return;
 		default:
 			break;

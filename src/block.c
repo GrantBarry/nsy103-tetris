@@ -1,72 +1,54 @@
 
 #include "block.h"
 
-void bl_set_i(void) {
+void bl_set_max_sizes(block_t * block) {
 	int x, y;
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[x][y] = BLOCK_I[y][x];
-		}
-	}
-	current_block.sizeX = 1;
-	current_block.sizeY = 4;
-	current_block.type = i_block;
-	current_block.rotation = 0;
-}
 
-void bl_set_l(void) {
-	int x, y;
+	block->sizeX = 0;
+	block->sizeY = 0;
 	for (y = 0; y < BLOCK_HEIGHT; y++) {
 		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[x][y] = BLOCK_L[y][x];
+			if (block->tab[x][y] == 1 && block->sizeX <= x) {
+				block->sizeX = x+1;
+			}
+			if (block->tab[x][y] == 1 && block->sizeY <= y) {
+				block->sizeY = y+1;
+			}
 		}
 	}
-	current_block.sizeX = 2;
-	current_block.sizeY = 3;
-	current_block.type = l_block;
-	current_block.rotation = 0;
-}
-
-void bl_set_o(void) {
-	int x, y;
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[x][y] = BLOCK_O[y][x];
-		}
-	}
-	current_block.sizeX = 2;
-	current_block.sizeY = 2;
-	current_block.type = o_block;
-	current_block.rotation = 0;
-}
-
-void bl_set_s(void) {
-	int x, y;
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[x][y] = BLOCK_S[y][x];
-		}
-	}
-	current_block.sizeX = 3;
-	current_block.sizeY = 2;
-	current_block.type = s_block;
-	current_block.rotation = 0;
-}
-
-void bl_set_t(void) {
-	int x, y;
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[x][y] = BLOCK_T[y][x];
-		}
-	}
-	current_block.sizeX = 3;
-	current_block.sizeY = 2;
-	current_block.type = t_block;
-	current_block.rotation = 0;
 }
 
 void bl_set_block_type(enum block_type t) {
+
+	int x, y, offset;
+	offset = 4 * (int)(current_block.rotation / 90);
+
+	current_block.type = t;
+
+	for (y = 0; y < BLOCK_HEIGHT; y++) {
+		for (x = 0; x < BLOCK_WIDTH; x++) {
+			switch (t) {
+				case i_block:
+					current_block.tab[x][y] = BLOCK_I[offset + y][x];
+					break;
+				case l_block:
+					current_block.tab[x][y] = BLOCK_L[offset + y][x];
+					break;
+				case o_block:
+					current_block.tab[x][y] = BLOCK_O[offset + y][x];
+					break;
+				case s_block:
+					current_block.tab[x][y] = BLOCK_S[offset + y][x];
+					break;
+				case t_block:
+					current_block.tab[x][y] = BLOCK_T[offset + y][x];
+					break;
+			}
+		}
+	}
+
+	bl_set_max_sizes(&current_block);
+/*
 	switch (t) {
 		case i_block:
 			bl_set_i();
@@ -84,46 +66,7 @@ void bl_set_block_type(enum block_type t) {
 			bl_set_t();
 			break;
 		}
-}
-
-// Moves the actual block up to the top-left of the block array (removes spaces before the block)
-void bl_clean(void) {
-	int x, y, startX, startY;
-	block_t copy;
-	
-	startX = 0;	
-	for (x = 0; x < BLOCK_WIDTH; x++) {
-		for (y = 0; y < BLOCK_HEIGHT; y++) {		
-			if (current_block.tab[x][y] != 0) {
-				startX = x;
-				break;
-			}
-		}
-		if (startX != 0) {
-			break;
-		}
-	}
-	
-	startY = 0;	
-	for (y = 0; y < BLOCK_HEIGHT; y++) {		
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			if (current_block.tab[x][y] != 0) {
-				startY = y;
-				break;
-			}
-		}
-		if (startY != 0) {
-			break;
-		}
-	}
-	
-	memcpy(&copy, &current_block, sizeof(copy));
-	memset(current_block.tab, '\0', sizeof(current_block.tab));
-	for (y = 0; y < current_block.sizeY; y++) {
-		for (x = 0; x < current_block.sizeX; x++) {
-			current_block.tab[x][y] = copy.tab[x+startX][y+startY];
-		}
-	}
+*/
 }
 
 void bl_reset() {
@@ -142,58 +85,44 @@ void bl_move_right(void) {
 		current_block.x++;
 }
 
-void bl_move_down(void) {
-	if (current_block.y <= ((BOARD_HEIGHT-1)-current_block.sizeY)) {
-		current_block.y++;
+void bl_move_down(block_t * block) {
+	if (!block) {
+		return;
+	}
+
+	if (block->y <= ((BOARD_HEIGHT-1)-block->sizeY)) {
+		block->y++;
 	}
 }
 
 void bl_rotate_right(void) {
-	block_t copy;
-	int x, y;
-	
 	if (current_block.type == o_block) { // No rotation needed
 		return;
 	}
 
-	memcpy(&copy, &current_block, sizeof(copy));
-
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[y][BLOCK_HEIGHT-x] = copy.tab[x][y];
-		}
+	if (current_block.rotation == 270) {
+		current_block.rotation = 0;
 	}
-	
-	swap(&current_block.sizeX, &current_block.sizeY);
-	
-	// Eat the empty lines / move the block up to the top-left
-	bl_clean();
+	else {
+		current_block.rotation += 90;
+	}
 
-	current_block.rotation = (current_block.rotation+270)%360;
+	bl_set_block_type(current_block.type);
 }
 
 void bl_rotate_left(void) {
-	block_t copy;
-	int x, y;
-
 	if (current_block.type == o_block) { // No rotation needed
 		return;
 	}
-	
-	memcpy(&copy, &current_block, sizeof(copy));
 
-	for (y = 0; y < BLOCK_HEIGHT; y++) {
-		for (x = 0; x < BLOCK_WIDTH; x++) {
-			current_block.tab[y][x] = copy.tab[x][y];
-		}
+	if (current_block.rotation == 0) {
+		current_block.rotation = 270;
+	}
+	else {
+		current_block.rotation -= 90;
 	}
 
-	swap(&current_block.sizeX, &current_block.sizeY);
-	
-	// Eat the empty lines / move the block up to the top-left
-	bl_clean();
-
-	current_block.rotation = (current_block.rotation+90)%360;
+	bl_set_block_type(current_block.type);
 }
 
 void bl_reflect(void) {
@@ -213,7 +142,7 @@ void bl_reflect(void) {
 	}
 	
 	// Eat the empty lines / move the block up to the top-left
-	bl_clean();
+//	bl_clean();
 }
 
 void bl_draw(void) {
@@ -226,4 +155,3 @@ void bl_draw(void) {
 		}
 	}
 }
-

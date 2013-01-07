@@ -14,17 +14,17 @@ void b_draw_board(void) {
 }
 
 // Returns 1 if the block collides with the board
-unsigned int b_does_collide(void) {
+unsigned int b_does_collide(block_t * block) {
 	int x, y;
 
-	if (current_block.y >= ((BOARD_HEIGHT)-current_block.sizeY)) {
+	if (block->y >= ((BOARD_HEIGHT)-block->sizeY)) {
 		return 1;
 	}
 	
 	// Check for collisions
-	for (y = 0; y < current_block.sizeY; y++) {
-		for (x = 0; x < current_block.sizeX; x++) {
-			if ((current_block.tab[x][y] > 0) && (board[current_block.x + x][current_block.y + y + 1] > 0)) {
+	for (y = block->sizeY-1; y >= 0; y--) {
+		for (x = 0; x < block->sizeX; x++) {
+			if ((block->tab[x][y] > 0) && (board[block->x + x][block->y + y + 1] > 0)) {
 				return 1;
 			}
 		}
@@ -83,15 +83,20 @@ int b_getNumBlocks(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 }
 
 // Sets the block coordinates to the lowest position (on the board)
-void b_drop_block(void) {
+void b_drop_block(block_t * block) {
 	unsigned int collision = 0;
+	block_t copy;
+
+	memcpy(&copy, &current_block, sizeof(copy));
 	
-	collision = b_does_collide();
+	collision = b_does_collide(&current_block);
 	
 	while (collision == 0) {
-		bl_move_down();
-		collision = b_does_collide();
+		bl_move_down(&copy);
+		collision = b_does_collide(&copy);
 	}
+
+	block->y = copy.y-1;
 }
 
 // Remove full lines
