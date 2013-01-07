@@ -4,6 +4,7 @@
 
 #define BOARD_WIDTH  12
 #define BOARD_HEIGHT 25
+#define BOARD_DRAW_OFFSET 5
 
 #define BLOCK_WIDTH 4
 #define BLOCK_HEIGHT 4

@@ -133,16 +133,16 @@ static int BLOCK_T[16][4] = {
 };
 
 void bl_copy(block_t block, block_t copy); // Returns a copy of a block_t structure
-void bl_reset(void); // Resets the coordinates of a block_t structure
+void bl_reset(block_t * block); // Resets the coordinates of a block_t structure
 void bl_set_block_type(enum block_type t);
 void bl_set_max_sizes(block_t * block);
-void bl_move_left(void);
-void bl_move_right(void);
+void bl_move_left(block_t * block);
+void bl_move_right(block_t * block);
 void bl_move_down(block_t * block);
-void bl_rotate_left(void);
-void bl_rotate_right(void);
-void bl_reflect(void);
-void bl_draw(void);
+void bl_rotate_left(block_t * block);
+void bl_rotate_right(block_t * block);
+void bl_reflect(block_t * block);
+void bl_draw(const block_t * block);
 
 block_t current_block;
 

@@ -7,7 +7,7 @@ void b_draw_board(void) {
 		mvprintw(y, 0, "%d", y);
 		for (x = 0; x < BOARD_WIDTH; x++) {
 			if (board[x][y] > 0) {
-				mvprintw(y, x+5, "#"); // Print a solid block to the screen
+				mvprintw(y, x+BOARD_DRAW_OFFSET, "#"); // Print a solid block to the screen
 			}
 		}
 	}
@@ -33,19 +33,8 @@ unsigned int b_does_collide(block_t * block) {
 	return 0;
 }
 
-void b_getSkyline(int board[BOARD_WIDTH][BOARD_HEIGHT], int * skyline) {
-	int x, y;
-	for (x = 0; x < BOARD_WIDTH; x++) {
-		y = 0;
-		while (board[x][y] == 0 && y < BOARD_HEIGHT-1) {
-			y++;
-		}
-		skyline[x] = y;
-	}	
-}
-
 // Returns the number of complete lines on the board
-int b_getNumLines(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
+int b_get_num_lines(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 	int x, y, lineCount, result = 0;
 	
 	for (y = 0; y < BOARD_HEIGHT; y++) {
@@ -63,13 +52,18 @@ int b_getNumLines(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 	return result;
 }
 
-// Returns the number of empty blocks (holes) below the skyline
-int b_getNumBlocks(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
+int b_get_num_empty_blocks(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 	int x, y, result = 0;
 	int skyline[BOARD_WIDTH];
-	
+
 	// Calculate the skyline for this cycle
-	b_getSkyline(board, &skyline);
+	for (x = 0; x < BOARD_WIDTH; x++) {
+		y = 0;
+		while (board[x][y] == 0 && y < BOARD_HEIGHT-1) {
+			y++;
+		}
+		skyline[x] = y;
+	}
 	
 	for (x = 0; x < BOARD_WIDTH; x++) {
 		for (y = skyline[x]+1; y < BOARD_HEIGHT; y++) {

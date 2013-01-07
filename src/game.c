@@ -3,7 +3,7 @@
 
 
 void g_new_game(void) {
-	bl_reset();
+	bl_reset(&current_block);
 
 	// If not connected, generate a block
 	if (net_connected == 0) {
@@ -14,6 +14,7 @@ void g_new_game(void) {
 void g_cycle(int kb_input) {
 	int x, y;
 
+	//ai_suggest_best_block_location();
 	g_manage_kb(kb_input);
 	bl_move_down(&current_block);
 
@@ -26,7 +27,7 @@ void g_cycle(int kb_input) {
 			}
 		}
 
-		bl_reset();
+		bl_reset(&current_block);
 		bl_set_block_type((current_block.type+1)%5);
 	}
 
@@ -41,21 +42,21 @@ void g_manage_kb(int kb_input) {
 			return;
 		case 'a':
 		case 'A':
-			bl_rotate_left();
+			bl_rotate_left(&current_block);
 			return;
 		case 'z':
 		case 'Z':
-			bl_rotate_right();
+			bl_rotate_right(&current_block);
 			return;
 		case 'r':
 		case 'R':
-			bl_reflect();
+			bl_reflect(&current_block);
 			return;
 		case KEY_LEFT:
-			bl_move_left();
+			bl_move_left(&current_block);
 			return;
 		case KEY_RIGHT:
-			bl_move_right();
+			bl_move_right(&current_block);
 			return;
 		case KEY_DOWN:
 			b_drop_block(&current_block);
@@ -68,6 +69,6 @@ void g_manage_kb(int kb_input) {
 void g_draw(void) {
 	clear();
 	b_draw_board();
-	bl_draw();
+	bl_draw(&current_block);
 	refresh();
 }

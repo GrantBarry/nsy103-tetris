@@ -50,20 +50,32 @@ void bl_set_block_type(enum block_type t) {
 	bl_set_max_sizes(&current_block);
 }
 
-void bl_reset() {
-	current_block.x = BOARD_WIDTH / 2;
-	current_block.y = 0;
-	current_block.rotation = 0;
+void bl_reset(block_t * block) {
+	if (!block) {
+		return;
+	}
+
+	block->x = BOARD_WIDTH / 2;
+	block->y = 0;
+	block->rotation = 0;
 }
 
-void bl_move_left(void) {
-	if (current_block.x > 0)
-		current_block.x--;
+void bl_move_left(block_t * block) {
+	if (!block) {
+		return;
+	}
+
+	if (block->x > 0)
+		block->x--;
 }
 
-void bl_move_right(void) {
-	if (current_block.x < ((BOARD_WIDTH)-current_block.sizeX))
-		current_block.x++;
+void bl_move_right(block_t * block) {
+	if (!block) {
+		return;
+	}
+
+	if (block->x < ((BOARD_WIDTH)-block->sizeX))
+		block->x++;
 }
 
 void bl_move_down(block_t * block) {
@@ -76,60 +88,77 @@ void bl_move_down(block_t * block) {
 	}
 }
 
-void bl_rotate_right(void) {
-	if (current_block.type == o_block) { // No rotation needed
+void bl_rotate_right(block_t * block) {
+	if (!block) {
 		return;
 	}
 
-	if (current_block.rotation == 270) {
-		current_block.rotation = 0;
-	}
-	else {
-		current_block.rotation += 90;
-	}
-
-	bl_set_block_type(current_block.type);
-}
-
-void bl_rotate_left(void) {
-	if (current_block.type == o_block) { // No rotation needed
+	if (block->type == o_block) { // No rotation needed
 		return;
 	}
 
-	if (current_block.rotation == 0) {
-		current_block.rotation = 270;
+	if (block->rotation == 270) {
+		block->rotation = 0;
 	}
 	else {
-		current_block.rotation -= 90;
+		block->rotation += 90;
 	}
 
-	bl_set_block_type(current_block.type);
+	bl_set_block_type(block->type);
 }
 
-void bl_reflect(void) {
+void bl_rotate_left(block_t * block) {
+	if (!block) {
+		return;
+	}
+
+	if (block->type == o_block) { // No rotation needed
+		return;
+	}
+
+	if (block->rotation == 0) {
+		block->rotation = 270;
+	}
+	else {
+		block->rotation -= 90;
+	}
+
+	bl_set_block_type(block->type);
+}
+
+void bl_reflect(block_t * block) {
 	block_t copy;
 	int x, y;
 
-	if (current_block.type == o_block || current_block.type == i_block) { // No reflection needed
+	if (!block) {
 		return;
 	}
 
-	memcpy(&copy, &current_block, sizeof(copy));
+	if (block->type == o_block || block->type == i_block) { // No reflection needed
+		return;
+	}
 
-	for (y = 0; y < current_block.sizeY; y++) {
-		for (x = 0; x < current_block.sizeX; x++) {
-			current_block.tab[(current_block.sizeX-1)-x][y] = copy.tab[x][y];
+	memcpy(&copy, block, sizeof(copy));
+
+	for (y = 0; y < block->sizeY; y++) {
+		for (x = 0; x < block->sizeX; x++) {
+			block->tab[(block->sizeX-1)-x][y] = copy.tab[x][y];
 		}
 	}
-	bl_set_max_sizes(&current_block);
+	bl_set_max_sizes(block);
 }
 
-void bl_draw(void) {
+void bl_draw(const block_t * block) {
 	int x, y;
-	for (y = 0; y < current_block.sizeY; y++) {
-		for (x = 0; x < current_block.sizeX; x++) {
-			if (current_block.tab[x][y] == 1) {
-				mvprintw(current_block.y+y, current_block.x+x+5, "*");
+
+	if (!block) {
+		return;
+	}
+
+	for (y = 0; y < block->sizeY; y++) {
+		for (x = 0; x < block->sizeX; x++) {
+			if (block->tab[x][y] == 1) {
+				mvprintw(block->y+y, block->x+x+BOARD_DRAW_OFFSET, "*");
 			}
 		}
 	}

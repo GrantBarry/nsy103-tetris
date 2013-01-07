@@ -2,7 +2,7 @@ BIN=./bin/
 SRC=./src/
 OBJ=./obj/
 
-SOURCES=main.c game.c board.c block.c net.c
+SOURCES=main.c game.c board.c block.c net.c ai.c
 BINARY=gba_tetris
 
 CFILES=$(addprefix $(SRC),$(SOURCES))

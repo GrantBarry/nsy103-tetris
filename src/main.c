@@ -90,6 +90,10 @@ void m_printHelp(void) {
 void m_init(void) {
 	done = 0;
 
+	ai_height_weight = 1.0;
+	ai_line_weight = 1.0;
+	ai_empty_blocks_weight = 1.0;
+
 	initscr();
 	noecho();
 	keypad(stdscr, TRUE);
