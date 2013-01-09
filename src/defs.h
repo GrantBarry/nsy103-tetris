@@ -12,6 +12,8 @@
 #define NET_BUFFER_LENGTH 256
 #define IP_STRING_SIZE 16+1
 
+#define DEFAULT_SERVER_IP "none"
+
 #define VERSION "0.1.0"
 
 #define LOCALE_KEY_ESCAPE 27

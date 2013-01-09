@@ -5,4 +5,8 @@
 
 int net_connected;
 
+void net_init(void);
+void net_connect(void);
+void net_disconnect(void);
+
 #endif

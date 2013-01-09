@@ -14,8 +14,16 @@ void g_new_game(void) {
 void g_cycle(int kb_input) {
 	int x, y;
 
-	//ai_suggest_best_block_location();
-	g_manage_kb(kb_input);
+	if (net_connected == 0) {
+		g_manage_kb(kb_input);
+	}
+	else {
+		ai_suggest_best_block_location();
+
+		// Move the block to the best location
+		ai_move_block_to_best_location(&current_block);
+	}
+	
 	bl_move_down(&current_block);
 
 	if (b_does_collide(&current_block) == 1) {
@@ -23,6 +31,11 @@ void g_cycle(int kb_input) {
 			for (x = 0; x < current_block.sizeX; x++) {
 				if (current_block.tab[x][y] == 1) {
 					board[x+current_block.x][y+current_block.y] = 1;
+
+					if (net_connected == 1) {
+						// Get a new block and calculate the best location
+						ai_suggest_best_block_location();
+					}
 				}
 			}
 		}
