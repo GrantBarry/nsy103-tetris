@@ -34,17 +34,11 @@ unsigned int b_does_collide(block_t * block) {
 }
 
 // Returns the number of complete lines on the board
-int b_get_num_lines(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
-	int x, y, lineCount, result = 0;
+int b_get_num_lines(void) {
+	int x, y, result = 0;
 	
 	for (y = 0; y < BOARD_HEIGHT; y++) {
-		lineCount = 0;
-		for (x = 0; x < BOARD_WIDTH; x++) {
-			if (board[x][y] > 0) {
-				lineCount++;
-			}
-		}
-		if (lineCount >= BOARD_WIDTH) {
+		if (b_is_empty_line(y) == 1) {
 			result++;
 		}
 	}
@@ -52,7 +46,7 @@ int b_get_num_lines(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 	return result;
 }
 
-int b_get_num_empty_blocks(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
+int b_get_num_empty_blocks(void) {
 	int x, y, result = 0;
 	int skyline[BOARD_WIDTH];
 
@@ -66,7 +60,7 @@ int b_get_num_empty_blocks(int board[BOARD_WIDTH][BOARD_HEIGHT]) {
 	}
 	
 	for (x = 0; x < BOARD_WIDTH; x++) {
-		for (y = skyline[x]+1; y < BOARD_HEIGHT; y++) {
+		for (y = skyline[x]; y < BOARD_HEIGHT; y++) {
 			if (board[x][y] == 0) {
 				result++;
 			}
@@ -97,11 +91,7 @@ void b_drop_block(block_t * block) {
 void b_remove_lines(void) {
 	int x, y, i;
 	for (y = 0; y < BOARD_HEIGHT; y++) {
-		i = 0;
-		for (x = 0; x < BOARD_WIDTH; x++) {
-			i += board[x][y];
-		}
-		if (i == BOARD_WIDTH) {// We have a full line
+		if (b_is_empty_line(y)) {
 			b_remove_line(y);
 		}
 	}	
@@ -125,4 +115,18 @@ void b_remove_line(int line) {
 	for (x = 0; x < BOARD_WIDTH; x++) {
 		board[x][0] = 0;
 	}
+}
+
+int b_is_empty_line(int line) {
+	int x, y, i;
+	for (y = 0; y < BOARD_HEIGHT; y++) {
+		i = 0;
+		for (x = 0; x < BOARD_WIDTH; x++) {
+			i += board[x][y];
+		}
+		if (i >= BOARD_WIDTH) {
+			return 1;
+		}
+	}
+	return 0;
 }

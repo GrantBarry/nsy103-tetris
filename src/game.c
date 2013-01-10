@@ -9,6 +9,10 @@ void g_new_game(void) {
 	if (net_connected == 0) {
 		bl_set_block_type(i_block);
 	}
+	else {
+		bl_set_block_type(i_block); // TEMP !!!!!!!
+		ai_suggest_best_block_location();
+	}
 }
 
 void g_cycle(int kb_input) {
@@ -18,7 +22,7 @@ void g_cycle(int kb_input) {
 		g_manage_kb(kb_input);
 	}
 	else {
-		ai_suggest_best_block_location();
+//		ai_suggest_best_block_location();
 
 		// Move the block to the best location
 		ai_move_block_to_best_location(&current_block);
@@ -31,17 +35,16 @@ void g_cycle(int kb_input) {
 			for (x = 0; x < current_block.sizeX; x++) {
 				if (current_block.tab[x][y] == 1) {
 					board[x+current_block.x][y+current_block.y] = 1;
-
-					if (net_connected == 1) {
-						// Get a new block and calculate the best location
-						ai_suggest_best_block_location();
-					}
 				}
 			}
 		}
 
 		bl_reset(&current_block);
 		bl_set_block_type((current_block.type+1)%5);
+		if (net_connected == 1) {
+			// Get a new block and calculate the best location
+			ai_suggest_best_block_location();
+		}
 	}
 
 	b_remove_lines();
