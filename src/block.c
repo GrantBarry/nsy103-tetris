@@ -62,6 +62,7 @@ void bl_reset(block_t * block) {
 	block->x = BOARD_WIDTH / 2;
 	block->y = 0;
 	block->rotation = 0;
+	block->reflected = 0;
 }
 
 void bl_move_left(block_t * block) {
@@ -143,7 +144,13 @@ void bl_reflect(block_t * block) {
 	}
 
 	memcpy(&copy, block, sizeof(copy));
-
+	
+	if (block->reflected == 0) {
+		block->reflected = 1;
+	} else {
+		block->reflected = 0;
+	}
+	
 	for (y = 0; y < block->sizeY; y++) {
 		for (x = 0; x < block->sizeX; x++) {
 			block->tab[(block->sizeX-1)-x][y] = copy.tab[x][y];

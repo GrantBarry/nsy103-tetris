@@ -17,6 +17,7 @@ typedef struct {
 	int x, y; // Coordinates
 	int sizeX, sizeY; // Actual size of the block with in the BLOCK_WIDTH and BLOCK_HEIGHT
 	int rotation;
+	int reflected;
 	int tab[BLOCK_WIDTH][BLOCK_HEIGHT];
 	enum block_type type;
 } block_t;

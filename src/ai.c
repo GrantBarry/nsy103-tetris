@@ -38,7 +38,7 @@ void ai_suggest_best_block_location(void) {
 	for (blockReflectionIndex = 0; blockReflectionIndex < 2; blockReflectionIndex++) {	
 		for (blockIndex = 0; blockIndex < 4; blockIndex++) {
 			// Move the block from left to right and find the best fit based on the given weights
-			for (i = 0; i < (BOARD_WIDTH-1)-blockCopy[blockIndex][blockReflectionIndex].sizeX-1; i++) {
+			for (i = 0; i <= (BOARD_WIDTH)-blockCopy[blockIndex][blockReflectionIndex].sizeX; i++) {
 
 				memcpy(&testBlock, &blockCopy[blockIndex][blockReflectionIndex], sizeof(testBlock));
 
@@ -79,15 +79,17 @@ void ai_suggest_best_block_location(void) {
 				result = (numHeight*ai_height_weight) + (numSolidLines*ai_line_weight) + (numEmptyBlocks*ai_empty_blocks_weight);
 
 
-				clear();
-				b_draw_board();
-				bl_draw(&testBlock);
-				mvprintw(18,18,"%f",numHeight*ai_height_weight);
-				for (x = 0; x < BOARD_WIDTH; x++) {
-					mvprintw(x,14,"%d",skyline[x]);
-				}
-				refresh();
-				usleep(100000);
+				// clear();
+				// b_draw_board();
+				// bl_draw(&testBlock);
+				// mvprintw(17,19,"%d + %d = %d [%d]",testBlock.x,testBlock.sizeX,testBlock.x+testBlock.sizeX,BOARD_WIDTH);
+				// mvprintw(18,19,"%d x %d",testBlock.sizeX, testBlock.sizeY);
+				// mvprintw(19,19,"%f",numHeight*ai_height_weight);
+				// for (x = 0; x < BOARD_WIDTH; x++) {
+				// 	mvprintw(x,30,"%d",skyline[x]);
+				// }
+				// refresh();
+				// usleep(50000);
 			
 				// Now restore the board
 				memcpy(&board, &boardCopy, sizeof(int)*BOARD_WIDTH*BOARD_HEIGHT);
@@ -125,6 +127,11 @@ void ai_move_block_to_best_location(block_t * block) {
 
 	if (block->rotation > ai_block.rotation) {
 		bl_rotate_left(block);
+		return;
+	}
+
+	if (block->reflected != ai_block.reflected) {
+		bl_reflect(block);
 		return;
 	}
 

@@ -96,8 +96,8 @@ void m_init(void) {
 	done = 0;
 
 	ai_height_weight = 2.0;
-	ai_line_weight = 3.0;
-	ai_empty_blocks_weight = 1.0;
+	ai_line_weight = 1.0;
+	ai_empty_blocks_weight = 4.0;
 
 	// Initliaze ncurses lib (libncurses5-dev)
 	initscr();
