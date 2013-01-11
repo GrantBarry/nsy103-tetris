@@ -17,7 +17,7 @@ void b_draw_board(void) {
 unsigned int b_does_collide(block_t * block) {
 	int x, y;
 
-	if (block->y >= ((BOARD_HEIGHT)-block->sizeY)) {
+	if (block->y >= BOARD_HEIGHT-block->sizeY) {
 		return 1;
 	}
 	
@@ -75,9 +75,9 @@ void b_drop_block(block_t * block) {
 	unsigned int collision = 0;
 	block_t copy;
 
-	memcpy(&copy, &current_block, sizeof(copy));
+	memcpy(&copy, block, sizeof(copy));
 	
-	collision = b_does_collide(&current_block);
+	collision = b_does_collide(&copy);
 	
 	while (collision == 0) {
 		bl_move_down(&copy);

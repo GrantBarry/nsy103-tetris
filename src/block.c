@@ -18,36 +18,40 @@ void bl_set_max_sizes(block_t * block) {
 	}
 }
 
-void bl_set_block_type(enum block_type t) {
+void bl_set_block_type(block_t * block, enum block_type t) {
 
 	int x, y, offset;
-	offset = 4 * (int)(current_block.rotation / 90);
+	offset = 4 * (int)(block->rotation / 90);
 
-	current_block.type = t;
+	if (!block) {
+		return;
+	}
+
+	block->type = t;
 
 	for (y = 0; y < BLOCK_HEIGHT; y++) {
 		for (x = 0; x < BLOCK_WIDTH; x++) {
 			switch (t) {
 				case i_block:
-					current_block.tab[x][y] = BLOCK_I[offset + y][x];
+					block->tab[x][y] = BLOCK_I[offset + y][x];
 					break;
 				case l_block:
-					current_block.tab[x][y] = BLOCK_L[offset + y][x];
+					block->tab[x][y] = BLOCK_L[offset + y][x];
 					break;
 				case o_block:
-					current_block.tab[x][y] = BLOCK_O[offset + y][x];
+					block->tab[x][y] = BLOCK_O[offset + y][x];
 					break;
 				case s_block:
-					current_block.tab[x][y] = BLOCK_S[offset + y][x];
+					block->tab[x][y] = BLOCK_S[offset + y][x];
 					break;
 				case t_block:
-					current_block.tab[x][y] = BLOCK_T[offset + y][x];
+					block->tab[x][y] = BLOCK_T[offset + y][x];
 					break;
 			}
 		}
 	}
 
-	bl_set_max_sizes(&current_block);
+	bl_set_max_sizes(block);
 }
 
 void bl_reset(block_t * block) {
@@ -104,7 +108,7 @@ void bl_rotate_right(block_t * block) {
 		block->rotation += 90;
 	}
 
-	bl_set_block_type(block->type);
+	bl_set_block_type(block, block->type);
 }
 
 void bl_rotate_left(block_t * block) {
@@ -123,7 +127,7 @@ void bl_rotate_left(block_t * block) {
 		block->rotation -= 90;
 	}
 
-	bl_set_block_type(block->type);
+	bl_set_block_type(block, block->type);
 }
 
 void bl_reflect(block_t * block) {

@@ -7,10 +7,10 @@ void g_new_game(void) {
 
 	// If not connected, generate a block
 	if (net_connected == 0) {
-		bl_set_block_type(i_block);
+		bl_set_block_type(&current_block, i_block);
 	}
 	else {
-		bl_set_block_type(i_block); // TEMP !!!!!!!
+		bl_set_block_type(&current_block, i_block); // TEMP !!!!!!!
 		ai_suggest_best_block_location();
 	}
 }
@@ -40,7 +40,7 @@ void g_cycle(int kb_input) {
 		}
 
 		bl_reset(&current_block);
-		bl_set_block_type((current_block.type+1)%5);
+		bl_set_block_type(&current_block, (current_block.type+1)%5);
 		if (net_connected == 1) {
 			// Get a new block and calculate the best location
 			ai_suggest_best_block_location();
@@ -86,5 +86,6 @@ void g_draw(void) {
 	clear();
 	b_draw_board();
 	bl_draw(&current_block);
+	usleep(50000);
 	refresh();
 }
