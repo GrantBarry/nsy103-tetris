@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 		g_draw();
 		kb_input = getch();
 		g_cycle(kb_input);
-		usleep(250);
+//		usleep(250);
 	}
 
 	m_deinit();

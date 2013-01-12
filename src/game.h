@@ -15,5 +15,6 @@ void g_new_game(void);
 void g_cycle(int kb_input);
 void g_manage_kb(int kb_input);
 void g_draw(void);
+void g_game_over(void);
 
 #endif

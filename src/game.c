@@ -33,6 +33,10 @@ void g_cycle(int kb_input) {
 	bl_move_down(&current_block);
 
 	if (b_does_collide(&current_block) == 1) {
+		if (current_block.y <= 1) {
+			g_game_over();
+			return;
+		}
 		for (y = 0; y < current_block.sizeY; y++) {
 			for (x = 0; x < current_block.sizeX; x++) {
 				if (current_block.tab[x][y] == 1) {
@@ -44,7 +48,6 @@ void g_cycle(int kb_input) {
 		points += b_remove_lines();
 
 		bl_reset(&current_block);
-		srand(time(NULL));
 		bl_set_block_type(&current_block, rand()%5);
 		if (net_connected == 1) {
 			// Get a new block and calculate the best location
@@ -100,4 +103,24 @@ void g_draw(void) {
 	}
 	usleep(50000);
 	refresh();
+}
+
+void g_game_over(void) {
+	clear();
+	mvprintw( 1,1,"   _____                      ");
+	mvprintw( 2,1,"  / ____|                     ");
+	mvprintw( 3,1," | |  __  __ _ _ __ ___   ___ ");
+	mvprintw( 4,1," | | |_ |/ _` | /_ ` _ \\ / _ \\");
+	mvprintw( 5,1," | |__| | (_| | | | | | |  __/");
+	mvprintw( 6,1,"  \\_____|\\__,_|_| |_| |_|\\___|");
+	mvprintw( 8,1,"   ____                 ");
+	mvprintw( 9,1,"  / __ \\                ");
+	mvprintw(10,1," | |  | |_   _____ _ __ ");
+	mvprintw(11,1," | |  | \\ \\ / / _ \\ |__|");
+	mvprintw(12,1," | |__| |\\ V /  __/ |   ");
+	mvprintw(13,1,"  \\____/  \\_/ \\___|_|   ");
+	refresh();
+	done = 1;
+	sleep(2);
+//	getch();
 }
