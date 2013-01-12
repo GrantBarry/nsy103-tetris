@@ -44,7 +44,8 @@ void g_cycle(int kb_input) {
 		points += b_remove_lines();
 
 		bl_reset(&current_block);
-		bl_set_block_type(&current_block, (current_block.type+1)%5);
+		srand(time(NULL));
+		bl_set_block_type(&current_block, rand()%5);
 		if (net_connected == 1) {
 			// Get a new block and calculate the best location
 			ai_suggest_best_block_location();
