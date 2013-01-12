@@ -3,6 +3,7 @@
 
 #include "defs.h"
 #include "block.h"
+#include "game.h"
 
 void b_draw_board(void);
 unsigned int b_does_collide(block_t * block);

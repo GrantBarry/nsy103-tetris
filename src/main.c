@@ -11,6 +11,10 @@ int main(int argc, char *argv[]) {
 	// Set our server IP address to 'none'
 	strcpy(game_server_ip, DEFAULT_SERVER_IP);
 
+	ai_height_weight = 2.0;
+	ai_line_weight = 1.0;
+	ai_empty_blocks_weight = 4.0;
+
 	if (argc > 1) {
 		// Manage commandline arguments
 		m_manageArgs(argc, argv);
@@ -48,8 +52,12 @@ void swap(int * i, int * j) {
 void m_manageArgs(int argc, char *argv[]) {
 	int option;
 
-    while ((option = getopt(argc, argv,"bh:l:e:s:p:")) != -1) {
+    while ((option = getopt(argc, argv,"zbh:l:e:s:p:")) != -1) {
         switch (option) {
+        	case 'z' :
+        		debug = 1;
+        		printf("[m_manageArgs] debug set to %d\n", debug);
+        		break;
         	case 'h' :
         		ai_height_weight = atof(optarg);
         		printf("[m_manageArgs] ai_height_weight set to %f\n", ai_height_weight);
@@ -94,10 +102,6 @@ void m_printHelp(void) {
 
 void m_init(void) {
 	done = 0;
-
-	ai_height_weight = 2.0;
-	ai_line_weight = 1.0;
-	ai_empty_blocks_weight = 4.0;
 
 	// Initliaze ncurses lib (libncurses5-dev)
 	initscr();

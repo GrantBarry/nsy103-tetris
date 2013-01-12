@@ -9,6 +9,7 @@
 char game_server_ip[IP_STRING_SIZE];
 int game_server_port;
 unsigned int points;
+unsigned int debug;
 
 void g_new_game(void);
 void g_cycle(int kb_input);

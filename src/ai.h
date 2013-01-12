@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "block.h"
 #include "board.h"
+#include "game.h"
 
 float ai_height_weight;
 float ai_line_weight;

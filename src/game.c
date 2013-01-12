@@ -89,6 +89,14 @@ void g_draw(void) {
 	b_draw_board();
 	bl_draw(&current_block);
 	mvprintw(2, BOARD_DRAW_OFFSET + BOARD_WIDTH + 2, "Points: %d", points);
+	if (net_connected == 1) {
+		// Draw the ai block in color
+		start_color();
+		init_pair(1, COLOR_BLUE, COLOR_BLACK);
+		attron(COLOR_PAIR(1));
+		bl_draw(&ai_block);
+		attroff(COLOR_PAIR(1));
+	}
 	usleep(50000);
 	refresh();
 }

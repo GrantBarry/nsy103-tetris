@@ -38,7 +38,7 @@ void ai_suggest_best_block_location(void) {
 	for (blockReflectionIndex = 0; blockReflectionIndex < 2; blockReflectionIndex++) {	
 		for (blockIndex = 0; blockIndex < 4; blockIndex++) {
 			// Move the block from left to right and find the best fit based on the given weights
-			for (i = 0; i <= (BOARD_WIDTH)-blockCopy[blockIndex][blockReflectionIndex].sizeX; i++) {
+			for (i = 0; i < (BOARD_WIDTH)-blockCopy[blockIndex][blockReflectionIndex].sizeX; i++) {
 
 				memcpy(&testBlock, &blockCopy[blockIndex][blockReflectionIndex], sizeof(testBlock));
 
@@ -56,14 +56,14 @@ void ai_suggest_best_block_location(void) {
 				// Calculate the height impact
 				for (x = 0; x < BOARD_WIDTH; x++) {
 					y = 0;
-					while (board[x][y] == 0 && y < BOARD_HEIGHT-1) {
+					while (board[x][y] == 0 && y < BOARD_HEIGHT) {
 						y++;
 					}
 					skyline[x] = BOARD_HEIGHT-y;
 				}
 				numHeight = 0.0;
 				for (x = 0; x < BOARD_WIDTH; x++) {
-					numHeight += (float)skyline[x];
+					numHeight += (float)skyline[x]*skyline[x];
 				}
 
 				// Get the number of solid lines
@@ -78,18 +78,19 @@ void ai_suggest_best_block_location(void) {
 				// Neuron function
 				result = (numHeight*ai_height_weight) + (numSolidLines*ai_line_weight) + (numEmptyBlocks*ai_empty_blocks_weight);
 
-
-				// clear();
-				// b_draw_board();
-				// bl_draw(&testBlock);
-				// mvprintw(17,19,"%d + %d = %d [%d]",testBlock.x,testBlock.sizeX,testBlock.x+testBlock.sizeX,BOARD_WIDTH);
-				// mvprintw(18,19,"%d x %d",testBlock.sizeX, testBlock.sizeY);
-				// mvprintw(19,19,"%f",numHeight*ai_height_weight);
-				// for (x = 0; x < BOARD_WIDTH; x++) {
-				// 	mvprintw(x,30,"%d",skyline[x]);
-				// }
-				// refresh();
-				// usleep(50000);
+				if (debug == 1) {
+					clear();
+					b_draw_board();
+					bl_draw(&testBlock);
+					mvprintw(17,19,"%d + %d = %d [%d]",testBlock.x,testBlock.sizeX,testBlock.x+testBlock.sizeX,BOARD_WIDTH);
+					mvprintw(18,19,"%d x %d",testBlock.sizeX, testBlock.sizeY);
+					mvprintw(19,19,"%f (line = %f), (solid = %f), (empty = %f)",result,numHeight,numSolidLines,numEmptyBlocks);
+					for (x = 0; x < BOARD_WIDTH; x++) {
+						mvprintw(x,30,"%d",skyline[x]);
+					}
+					refresh();
+					usleep(500000);
+				}
 			
 				// Now restore the board
 				memcpy(&board, &boardCopy, sizeof(int)*BOARD_WIDTH*BOARD_HEIGHT);

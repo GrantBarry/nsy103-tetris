@@ -11,6 +11,10 @@ void b_draw_board(void) {
 			}
 		}
 	}
+	if (debug == 1) {
+		mvprintw(BOARD_HEIGHT, BOARD_DRAW_OFFSET, "s");
+		mvprintw(BOARD_HEIGHT, BOARD_WIDTH+BOARD_DRAW_OFFSET, "e");
+	}
 }
 
 // Returns 1 if the block collides with the board
@@ -53,7 +57,7 @@ int b_get_num_empty_blocks(void) {
 	// Calculate the skyline for this cycle
 	for (x = 0; x < BOARD_WIDTH; x++) {
 		y = 0;
-		while (board[x][y] == 0 && y < BOARD_HEIGHT-1) {
+		while (board[x][y] == 0 && y < BOARD_HEIGHT) {
 			y++;
 		}
 		skyline[x] = y;
@@ -91,9 +95,10 @@ void b_drop_block(block_t * block) {
 unsigned int b_remove_lines(void) {
 	int y;
 	unsigned int num_lines_removed = 0;
-	for (y = 0; y < BOARD_HEIGHT; y++) {
+	for (y = BOARD_HEIGHT-1; y >= 0; y--) {
 		if (b_is_full_line(y) == 1) {
 			b_remove_line(y);
+			y++;
 			num_lines_removed++;
 		}
 	}
