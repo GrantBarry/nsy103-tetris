@@ -122,5 +122,20 @@ void g_game_over(void) {
 	refresh();
 	done = 1;
 	sleep(2);
-//	getch();
+	g_log_result();
+}
+
+void g_log_result(void) {
+	FILE *file_pointer;
+	file_pointer = fopen("results.log", "a");
+	if (file_pointer == NULL) {
+		error("unable to open log file");
+	}
+	fprintf(file_pointer, "ai_height_weight=%f;ai_line_weight=%f;ai_empty_blocks_weight=%f;points=%d\n",
+		ai_height_weight,
+		ai_line_weight,
+		ai_empty_blocks_weight,
+		points
+	);
+	fclose(file_pointer);	
 }
