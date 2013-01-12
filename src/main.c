@@ -11,9 +11,9 @@ int main(int argc, char *argv[]) {
 	// Set our server IP address to 'none'
 	strcpy(game_server_ip, DEFAULT_SERVER_IP);
 
-	ai_height_weight = 2.0;
-	ai_line_weight = 1.0;
-	ai_empty_blocks_weight = 4.0;
+	ai_height_weight = 1.0;
+	ai_line_weight = -20.0;
+	ai_empty_blocks_weight = 10.0;
 
 	if (argc > 1) {
 		// Manage commandline arguments

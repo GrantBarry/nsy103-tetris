@@ -41,6 +41,8 @@ void g_cycle(int kb_input) {
 			}
 		}
 
+		points += b_remove_lines();
+
 		bl_reset(&current_block);
 		bl_set_block_type(&current_block, (current_block.type+1)%5);
 		if (net_connected == 1) {
@@ -48,8 +50,6 @@ void g_cycle(int kb_input) {
 			ai_suggest_best_block_location();
 		}
 	}
-
-	points += b_remove_lines();
 }
 
 void g_manage_kb(int kb_input) {
@@ -64,7 +64,7 @@ void g_manage_kb(int kb_input) {
 			return;
 		case 'z':
 		case 'Z':
-			bl_rotate_right(&current_block);
+			bl_rotate_anti_clockwise(&current_block);
 			return;
 		case 'r':
 		case 'R':

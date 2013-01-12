@@ -79,7 +79,7 @@ void bl_move_right(block_t * block) {
 		return;
 	}
 
-	if (block->x < ((BOARD_WIDTH)-block->sizeX))
+	if (block->x < BOARD_WIDTH-block->sizeX)
 		block->x++;
 }
 
@@ -93,12 +93,13 @@ void bl_move_down(block_t * block) {
 	}
 }
 
-void bl_rotate_right(block_t * block) {
+void bl_rotate_anti_clockwise(block_t * block) {
 	if (!block) {
 		return;
 	}
 
-	if (block->type == o_block) { // No rotation needed
+	if (block->type == o_block) {
+		// No rotation needed
 		return;
 	}
 
@@ -117,7 +118,8 @@ void bl_rotate_left(block_t * block) {
 		return;
 	}
 
-	if (block->type == o_block) { // No rotation needed
+	if (block->type == o_block) {
+		// No rotation needed
 		return;
 	}
 

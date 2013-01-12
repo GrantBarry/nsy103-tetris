@@ -11,9 +11,9 @@ void b_draw_board(void) {
 			}
 		}
 	}
-	if (debug == 1) {
+	/*if (debug == 1)*/ {
 		mvprintw(BOARD_HEIGHT, BOARD_DRAW_OFFSET, "s");
-		mvprintw(BOARD_HEIGHT, BOARD_WIDTH+BOARD_DRAW_OFFSET, "e");
+		mvprintw(BOARD_HEIGHT, BOARD_WIDTH-1+BOARD_DRAW_OFFSET, "e");
 	}
 }
 

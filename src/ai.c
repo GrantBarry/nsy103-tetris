@@ -4,7 +4,7 @@
 void ai_suggest_best_block_location(void) {
 	int blockIndex, blockReflectionIndex, x, y, i;
 	float numHeight, numSolidLines, numEmptyBlocks, numPoints;
-	float bestResult = 10000000.0;
+	float bestResult = 1000000.0;
 	float result = 0.0;
 	int boardCopy[BOARD_WIDTH][BOARD_HEIGHT];
 	int skyline[BOARD_WIDTH];
@@ -16,11 +16,11 @@ void ai_suggest_best_block_location(void) {
 
 	// 90°
 	memcpy(&blockCopy[1][0], &current_block, sizeof(blockCopy[1][0]));
-	bl_rotate_right(&blockCopy[1][0]);
+	bl_rotate_anti_clockwise(&blockCopy[1][0]);
 	
 	// 180°
 	memcpy(&blockCopy[2][0], &blockCopy[1][0], sizeof(blockCopy[2][0]));
-	bl_rotate_right(&blockCopy[2][0]);
+	bl_rotate_anti_clockwise(&blockCopy[2][0]);
 	
 	// 270°
 	memcpy(&blockCopy[3][0], &current_block, sizeof(blockCopy[3][0]));
@@ -38,7 +38,7 @@ void ai_suggest_best_block_location(void) {
 	for (blockReflectionIndex = 0; blockReflectionIndex < 2; blockReflectionIndex++) {	
 		for (blockIndex = 0; blockIndex < 4; blockIndex++) {
 			// Move the block from left to right and find the best fit based on the given weights
-			for (i = 0; i < (BOARD_WIDTH)-blockCopy[blockIndex][blockReflectionIndex].sizeX; i++) {
+			for (i = 0; i <= (BOARD_WIDTH-blockCopy[blockIndex][blockReflectionIndex].sizeX); i++) {
 
 				memcpy(&testBlock, &blockCopy[blockIndex][blockReflectionIndex], sizeof(testBlock));
 
@@ -82,14 +82,24 @@ void ai_suggest_best_block_location(void) {
 					clear();
 					b_draw_board();
 					bl_draw(&testBlock);
+					start_color();
+					init_pair(1, COLOR_BLUE, COLOR_BLACK);
+					attron(COLOR_PAIR(1));
+					bl_draw(&ai_block);
+					attroff(COLOR_PAIR(1));
+
 					mvprintw(17,19,"%d + %d = %d [%d]",testBlock.x,testBlock.sizeX,testBlock.x+testBlock.sizeX,BOARD_WIDTH);
 					mvprintw(18,19,"%d x %d",testBlock.sizeX, testBlock.sizeY);
-					mvprintw(19,19,"%f (line = %f), (solid = %f), (empty = %f)",result,numHeight,numSolidLines,numEmptyBlocks);
+					mvprintw(19,19,"%f (line = %f), (solid = %f), (empty = %f)",result,numHeight,numSolidLines,numEmptyBlocks);			
+					mvprintw(20,19,"ai_block.rotation set to %d",ai_block.rotation);
+					if (ai_block.reflected == 1) {
+						mvprintw(21,19,"REFLECTED");
+					}
 					for (x = 0; x < BOARD_WIDTH; x++) {
 						mvprintw(x,30,"%d",skyline[x]);
 					}
 					refresh();
-					usleep(500000);
+					usleep(100000);
 				}
 			
 				// Now restore the board
@@ -110,7 +120,18 @@ void ai_move_block_to_best_location(block_t * block) {
 		return;
 	}
 
-	// Manage coordinates first
+	// Manage rotation
+	if (ai_block.rotation > block->rotation) {
+		bl_rotate_anti_clockwise(block);
+		return;
+	}
+
+	if (ai_block.rotation == 270 && ai_block.rotation != block->rotation) {
+		bl_rotate_left(block);
+		return;
+	}
+
+	// Manage coordinates
 	if (block->x < ai_block.x) {
 		bl_move_right(block);
 		return;
@@ -120,18 +141,8 @@ void ai_move_block_to_best_location(block_t * block) {
 		return;
 	}
 
-	// Manage rotation
-	if (block->rotation < ai_block.rotation) {
-		bl_rotate_right(block);
-		return;
-	}
-
-	if (block->rotation > ai_block.rotation) {
-		bl_rotate_left(block);
-		return;
-	}
-
-	if (block->reflected != ai_block.reflected) {
+	// And relfection
+	if (ai_block.reflected != block->reflected) {
 		bl_reflect(block);
 		return;
 	}
