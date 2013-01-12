@@ -3,6 +3,8 @@
 
 
 void g_new_game(void) {
+	points = 0;
+
 	bl_reset(&current_block);
 
 	// If not connected, generate a block
@@ -47,7 +49,7 @@ void g_cycle(int kb_input) {
 		}
 	}
 
-	b_remove_lines();
+	points += b_remove_lines();
 }
 
 void g_manage_kb(int kb_input) {
@@ -86,6 +88,7 @@ void g_draw(void) {
 	clear();
 	b_draw_board();
 	bl_draw(&current_block);
+	mvprintw(2, BOARD_DRAW_OFFSET + BOARD_WIDTH + 2, "Points: %d", points);
 	usleep(50000);
 	refresh();
 }

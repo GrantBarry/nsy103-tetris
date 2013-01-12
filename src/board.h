@@ -9,9 +9,9 @@ unsigned int b_does_collide(block_t * block);
 int b_get_num_lines(void);
 int b_get_num_empty_blocks(void);
 void b_drop_block(block_t * block);
-void b_remove_lines();
+unsigned int b_remove_lines(void);
 void b_remove_line(int line);
-int b_is_empty_line(int line);
+int b_is_full_line(int line);
 
 int board[BOARD_WIDTH][BOARD_HEIGHT];
 

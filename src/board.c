@@ -38,7 +38,7 @@ int b_get_num_lines(void) {
 	int x, y, result = 0;
 	
 	for (y = 0; y < BOARD_HEIGHT; y++) {
-		if (b_is_empty_line(y) == 1) {
+		if (b_is_full_line(y) == 1) {
 			result++;
 		}
 	}
@@ -88,13 +88,16 @@ void b_drop_block(block_t * block) {
 }
 
 // Remove full lines
-void b_remove_lines(void) {
-	int x, y, i;
+unsigned int b_remove_lines(void) {
+	int y;
+	unsigned int num_lines_removed = 0;
 	for (y = 0; y < BOARD_HEIGHT; y++) {
-		if (b_is_empty_line(y)) {
+		if (b_is_full_line(y) == 1) {
 			b_remove_line(y);
+			num_lines_removed++;
 		}
-	}	
+	}
+	return num_lines_removed;
 }
 
 void b_remove_line(int line) {
@@ -117,7 +120,7 @@ void b_remove_line(int line) {
 	}
 }
 
-int b_is_empty_line(int line) {
+int b_is_full_line(int line) {
 	int x, y, i;
 	for (y = 0; y < BOARD_HEIGHT; y++) {
 		i = 0;

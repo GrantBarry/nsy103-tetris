@@ -58,7 +58,7 @@ int test2() {
 		}
 		skyline[x] = y;
 	}
-
+ 
 	for (x = 0; x < BOARD_WIDTH; x++) {
 		printf("%d\n", skyline[x]);
 	}
