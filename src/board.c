@@ -11,10 +11,6 @@ void b_draw_board(void) {
 			}
 		}
 	}
-	/*if (debug == 1)*/ {
-		mvprintw(BOARD_HEIGHT, BOARD_DRAW_OFFSET, "s");
-		mvprintw(BOARD_HEIGHT, BOARD_WIDTH-1+BOARD_DRAW_OFFSET, "e");
-	}
 }
 
 // Returns 1 if the block collides with the board

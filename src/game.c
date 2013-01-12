@@ -101,7 +101,7 @@ void g_draw(void) {
 		bl_draw(&ai_block);
 		attroff(COLOR_PAIR(1));
 	}
-	usleep(50000);
+	//usleep(50000);
 	refresh();
 }
 
