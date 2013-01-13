@@ -64,11 +64,11 @@ void g_manage_kb(int kb_input) {
 			return;
 		case 'a':
 		case 'A':
-			bl_rotate_left(&current_block);
+			bl_rotate_anti_clockwise(&current_block);
 			return;
 		case 'z':
 		case 'Z':
-			bl_rotate_anti_clockwise(&current_block);
+			bl_rotate_clockwise(&current_block);
 			return;
 		case 'r':
 		case 'R':

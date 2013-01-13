@@ -24,7 +24,7 @@ void ai_suggest_best_block_location(void) {
 	
 	// 270°
 	memcpy(&blockCopy[3][0], &current_block, sizeof(blockCopy[3][0]));
-	bl_rotate_left(&blockCopy[3][0]);
+	bl_rotate_clockwise(&blockCopy[3][0]);
 
 	// Reflections
 	for (blockIndex = 0; blockIndex < 4; blockIndex++) {
@@ -123,29 +123,35 @@ void ai_move_block_to_best_location(block_t * block) {
 	// Manage rotation
 	if (ai_block.rotation > block->rotation) {
 		bl_rotate_anti_clockwise(block);
+		net_send_rotate_right();
 		return;
 	}
 
 	if (ai_block.rotation == 270 && ai_block.rotation != block->rotation) {
-		bl_rotate_left(block);
+		bl_rotate_clockwise(block);
+		net_send_rotate_left();
 		return;
 	}
 
 	// Manage coordinates
 	if (block->x < ai_block.x) {
 		bl_move_right(block);
+		net_send_right();
 		return;
 	}
 	if (block->x > ai_block.x) {
 		bl_move_left(block);
+		net_send_left();
 		return;
 	}
 
 	// And relfection
 	if (ai_block.reflected != block->reflected) {
 		bl_reflect(block);
+		net_send_invert();
 		return;
 	}
 
 	b_drop_block(block);
+	net_send_full_down();
 }

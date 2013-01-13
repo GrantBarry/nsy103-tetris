@@ -134,3 +134,16 @@ int b_is_full_line(int line) {
 	}
 	return 0;
 }
+
+void b_insert_line(int data[BOARD_WIDTH]) {
+	int x, y;
+	for (y = 0; y < BOARD_HEIGHT-1; y++) {
+		for (x = 0; x < BOARD_WIDTH; x++) {
+			board[x][y] = board[x][y+1];
+		}
+	}
+
+	for (x = 0; x < BOARD_WIDTH; x++) {
+		board[x][BOARD_HEIGHT-1] = data[x];
+	}
+}

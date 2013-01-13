@@ -113,7 +113,7 @@ void bl_rotate_anti_clockwise(block_t * block) {
 	bl_set_block_type(block, block->type);
 }
 
-void bl_rotate_left(block_t * block) {
+void bl_rotate_clockwise(block_t * block) {
 	if (!block) {
 		return;
 	}

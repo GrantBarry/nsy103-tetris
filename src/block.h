@@ -140,7 +140,7 @@ void bl_set_max_sizes(block_t * block);
 void bl_move_left(block_t * block);
 void bl_move_right(block_t * block);
 void bl_move_down(block_t * block);
-void bl_rotate_left(block_t * block);
+void bl_rotate_clockwise(block_t * block);
 void bl_rotate_anti_clockwise(block_t * block);
 void bl_reflect(block_t * block);
 void bl_draw(const block_t * block);
