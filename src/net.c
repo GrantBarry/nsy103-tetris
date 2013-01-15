@@ -32,8 +32,8 @@ void net_send(int socket, char * buffer) {
 	int ret;
 	
 	// Store a copy of the last net send command
-	memset(lastNetCommand, '\0', sizeof(lastNetCommand));
-	strcpy(lastNetCommand, buffer);
+	memset(net_last_command, '\0', sizeof(net_last_command));
+	strcpy(net_last_command, buffer);
 	
 	ret = write(socket, buffer, strlen(buffer));
 	if (ret  < 0) {

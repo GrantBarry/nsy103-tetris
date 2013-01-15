@@ -6,6 +6,7 @@
 int net_connected;
 int net_socket;
 struct sockaddr_in net_socket_address;
+char net_last_command[NET_BUFFER_LENGTH];
 
 void net_init(void);
 void net_connect(char * ip, int port);

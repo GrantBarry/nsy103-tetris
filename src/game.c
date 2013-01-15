@@ -26,10 +26,13 @@ void g_cycle(int kb_input) {
 	else {
 //		ai_suggest_best_block_location();
 
+		// Sleep half a second before sending code
+		usleep(500);
+	
 		// Move the block to the best location
 		ai_move_block_to_best_location(&current_block);
 	}
-	
+
 	bl_move_down(&current_block);
 
 	if (b_does_collide(&current_block) == 1) {
