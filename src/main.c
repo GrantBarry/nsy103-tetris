@@ -112,8 +112,10 @@ void m_init(void) {
 
 	if (strcmp(game_server_ip, DEFAULT_SERVER_IP) != 0) {
 		net_init();
-		net_connect(game_server_ip, game_server_port);
+		//net_connect(game_server_ip, game_server_port);
 		nodelay(stdscr, TRUE); // Do not wait for kb_input
+
+		//net_send_name("BOKKE");
 	}
 }
 

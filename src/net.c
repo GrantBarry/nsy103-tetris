@@ -16,7 +16,7 @@ void net_connect(char * ip, int port) {
 	net_socket_address.sin_addr.s_addr = inet_addr(ip);
 	net_socket_address.sin_port = htons(port);
 	
-	if (connect(net_socket, &net_socket_address, sizeof(net_socket_address)) < 0) {
+	if (connect(net_socket, (struct sockaddr *)&net_socket_address, sizeof(net_socket_address)) < 0) {
 		error("ERROR connecting");
 	}
 
@@ -62,7 +62,7 @@ void net_send_name(char * name) {
 	char receiveBuffer[NET_BUFFER_LENGTH];
 	
 	memset(sendBuffer, '\0', sizeof(sendBuffer));
-	asprintf(sendBuffer, "100 HELLO %s", name);
+	asprintf(sendBuffer, "100 HELLO %s\0\0\0", name);
 	net_send(net_socket, sendBuffer);
 	
 	net_read(net_socket, receiveBuffer);

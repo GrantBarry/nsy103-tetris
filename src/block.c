@@ -47,6 +47,18 @@ void bl_set_block_type(block_t * block, enum block_type t) {
 				case t_block:
 					block->tab[x][y] = BLOCK_T[offset + y][x];
 					break;
+				case z_block:
+					block->tab[x][y] = BLOCK_Z[offset + y][x];
+					break;
+				case u_block:
+					block->tab[x][y] = BLOCK_U[offset + y][x];
+					break;
+				case big_l_block:
+					block->tab[x][y] = BLOCK_BIG_L[offset + y][x];
+					break;
+				case big_t_block:
+					block->tab[x][y] = BLOCK_BIG_T[offset + y][x];
+					break;
 			}
 		}
 	}
