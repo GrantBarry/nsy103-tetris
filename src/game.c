@@ -7,8 +7,10 @@ void g_new_game(void) {
 
 	bl_reset(&current_block);
 
-	// If not connected, generate a block
-	if (net_connected == 0) {
+	net_send_ready();
+
+	// If we are in manual mode (auto_mode = 0), generate a block
+	if (auto_mode == 0) {
 		bl_set_block_type(&current_block, i_block);
 	}
 	else {
@@ -20,12 +22,10 @@ void g_new_game(void) {
 void g_cycle(int kb_input) {
 	int x, y;
 
-	if (net_connected == 0) {
+	if (auto_mode == 0) {
 		g_manage_kb(kb_input);
 	}
 	else {
-//		ai_suggest_best_block_location();
-
 		// Sleep half a second before sending code
 		usleep(500);
 	
@@ -52,7 +52,7 @@ void g_cycle(int kb_input) {
 
 		bl_reset(&current_block);
 		bl_set_block_type(&current_block, rand()%9);
-		if (net_connected == 1) {
+		if (auto_mode == 1) {
 			// Get a new block and calculate the best location
 			ai_suggest_best_block_location();
 		}
@@ -96,7 +96,7 @@ void g_draw(void) {
 	b_draw_board();
 	bl_draw(&current_block);
 	mvprintw(2, BOARD_DRAW_OFFSET + BOARD_WIDTH + 2, "Points: %d", points);
-	if (net_connected == 1) {
+	if (auto_mode == 1) {
 		// Draw the ai block in color
 		start_color();
 		init_pair(1, COLOR_BLUE, COLOR_BLACK);

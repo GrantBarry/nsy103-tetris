@@ -2,12 +2,19 @@
 #include "net.h"
 
 void net_init(void) {
+	int flag;
 	net_connected = 0;
 
 	net_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (net_socket < 0) {
 		error("ERROR opening socket");
 	}
+	printf("[net_init] net_socket set to %d\n", net_socket);
+/*
+	flag = fcntl(net_socket, F_GETFL, NULL);
+	flag |= O_NONBLOCK;
+	fcntl(net_socket, F_SETFL, flag);
+	*/
 }
 
 void net_connect(char * ip, int port) {
@@ -19,40 +26,48 @@ void net_connect(char * ip, int port) {
 	if (connect(net_socket, (struct sockaddr *)&net_socket_address, sizeof(net_socket_address)) < 0) {
 		error("ERROR connecting");
 	}
-
+	printf("[net_connect] connected using port %d\n", port);
 	net_connected = 1;
 }
 
 void net_disconnect(void) {
 	net_connected = 0;
 	close(net_socket);
+	printf("[net_disconnect] closed socket\n");
 }
 
 void net_send(int socket, char * buffer) {
-	int ret;
+	int total = 0;
+	int length = strlen(buffer);
+	int bytesleft = length;
+	int n;
+
+	while (total < length) {
+		n = send(socket, buffer+total, bytesleft, MSG_DONTWAIT);
+		if (n == -1) {
+			break;
+		}
+		total += n;
+		bytesleft -= n;
+	}
 	
 	// Store a copy of the last net send command
 	memset(net_last_command, '\0', sizeof(net_last_command));
 	strcpy(net_last_command, buffer);
-	
-	ret = write(socket, buffer, strlen(buffer));
-	if (ret  < 0) {
-		error("ERROR writing to socket");
-	}
 }
 
-void net_read(int socket, char * buffer) {
-	int ret;
-	memset(buffer, '\0', sizeof(buffer));
-	ret = read(socket, buffer, sizeof(buffer)-1);
-	if (ret < 0) {
-		error("ERROR reading from socket");
-	}
-}
+int net_recieve(int socket, char * buffer, int length) {
+	int bytes_in_socket = 0;
 
-int net_recieve(int socket, char * buffer) {
-	memset(buffer, '\0', sizeof(buffer));
-	return recv(socket, buffer, sizeof(buffer)-1, 0);
+	bytes_in_socket = recv(socket, buffer, length, MSG_PEEK);
+	if (debug == 1) {
+		printf("[net_recieve] received %d bytes: %s", bytes_in_socket, buffer);
+	}
+	if (bytes_in_socket > 0) {
+		memset(buffer, '\0', length);
+		return recv(socket, buffer, length, 0);
+	}
+	return bytes_in_socket;
 }
 
 // Le client salue le serveur et lui donne le nom qu'il choisi pour jouer
@@ -60,79 +75,91 @@ int net_recieve(int socket, char * buffer) {
 void net_send_name(char * name) {
 	char sendBuffer[NET_BUFFER_LENGTH];
 	char receiveBuffer[NET_BUFFER_LENGTH];
+	int code = 0;
+	char command[NET_BUFFER_LENGTH];
+	char data[NET_BUFFER_LENGTH];
 	
 	memset(sendBuffer, '\0', sizeof(sendBuffer));
-	asprintf(sendBuffer, "100 HELLO %s\0\0\0", name);
+	sprintf(sendBuffer, "100 HELLO %s\r\n", name);
 	net_send(net_socket, sendBuffer);
-	
-	net_read(net_socket, receiveBuffer);
-	if (strcmp(sendBuffer, receiveBuffer) != 0) {
-		error("ERROR server didn't accept the correct name");
+
+	net_recieve(net_socket, receiveBuffer, sizeof(receiveBuffer));
+	sscanf(receiveBuffer, "%d %s %s", &code, command, data);
+
+	if (code != 120) {
+		error("[net_send_name] ERROR! Server did not accept the name (wrong return code)\n");
+	}
+	if (strcmp("HELLO", command) != 0) {
+		sprintf(sendBuffer, "[net_send_name] ERROR! Server did not accept the name (wrong command) %s\n", command);
+		error(sendBuffer);
+	}
+	if (strcmp(name, data) != 0) {
+		error("[net_send_name] ERROR! Server did not accept the name (wrong name)\n");	
 	}
 }
 
 // Le client est prêt pour le début de la partie
 // 110 READY
 void net_send_ready(void) {
-	net_send(net_socket, "100 READY");
+	net_send(net_socket, "100 READY\r\n");
 }
 
 // Déplacement de la pièce vers la gauche
 // 200 LEFT
 void net_send_left(void) {
-	net_send(net_socket, "200 LEFT");
+	net_send(net_socket, "200 LEFT\r\n");
 }
 
 // Déplacement de la pièce vers la droite
 // 210 RIGHT
 void net_send_right(void) {
-	net_send(net_socket, "210 RIGHT");
+	net_send(net_socket, "210 RIGHT\r\n");
 }
 
 // Déplacement de la pièce d'une ligne vers le bas
 // 220 DOWN
 void net_send_down(void) {
-	net_send(net_socket, "220 DOWN");
+	net_send(net_socket, "220 DOWN\r\n");
 }
 
 // Déplacement de la pièce jusqu'au bas du tableau
 // 230 FULLDOWN
 void net_send_full_down(void) {
-	net_send(net_socket, "230 FULLDOWN");
+	net_send(net_socket, "230 FULLDOWN\r\n");
 }
 
 // Rotation de la pièce dans le sens horaire
 // 240 ROTATE_R
 void net_send_rotate_right(void) {
-	net_send(net_socket, "240 ROTATE_R");
+	net_send(net_socket, "240 ROTATE_R\r\n");
 }
 
 // Rotation de la pièce dans le sens anti-horaire
 // 250 ROTATE_L
 void net_send_rotate_left(void) {
-	net_send(net_socket, "250 ROTATE_L");
+	net_send(net_socket, "250 ROTATE_L\r\n");
 }
 
 // Symétrie horizontale de la pièce
 // 260 INVERSE
 void net_send_invert(void) {
-	net_send(net_socket, "260 INVERSE");
+	net_send(net_socket, "260 INVERSE\r\n");
 }
 
 // Ne rien faire
 // 270 PASS
 void net_send_pass() {
-	net_send(net_socket, "270 PASS");
+	net_send(net_socket, "270 PASS\r\n");
 }
 
 // Demander au serveur une copie du tableau et des pièces
 // 280 DUMP
 void net_send_dump_request() {
-	net_send(net_socket, "280 DUMP");
+	net_send(net_socket, "280 DUMP\r\n");
 }
 
 // Demander au serveur une copie du tableau et des pièces de l'adversaire
 // 290 DUMPENEMY
 void net_send_enemy_dump_request() {
-	net_send(net_socket, "290 DUMPENEMY");
+	net_send(net_socket, "290 DUMPENEMY\r\n");
 }

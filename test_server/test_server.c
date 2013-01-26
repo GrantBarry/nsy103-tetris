@@ -3,7 +3,7 @@ From: http://www.thegeekstuff.com/2011/12/c-socket-programming/
  */
 
 #define MAX_CLIENTS 64
-#define DEFAULT_PORT 5000
+#define DEFAULT_PORT 3000
 
 #include <sys/socket.h>
 #include <netinet/in.h>

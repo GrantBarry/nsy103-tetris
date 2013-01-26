@@ -12,7 +12,8 @@
 #define NET_BUFFER_LENGTH 256
 #define IP_STRING_SIZE 16+1
 
-#define DEFAULT_SERVER_IP "none"
+#define DEFAULT_SERVER_IP "127.0.0.1"
+#define DEFAULT_SERVER_PORT 3000
 
 #define VERSION "0.1.0"
 
@@ -28,8 +29,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-
+#include <sys/ioctl.h>
+#include <fcntl.h>
 
 int done;
+char game_server_ip[IP_STRING_SIZE];
+int game_server_port;
+unsigned int points;
+unsigned int debug;
+unsigned int auto_mode;
 
 #endif

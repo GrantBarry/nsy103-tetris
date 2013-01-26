@@ -8,12 +8,14 @@
 int main(int argc, char *argv[]) {
 	int kb_input;
 
-	// Set our server IP address to 'none'
 	strcpy(game_server_ip, DEFAULT_SERVER_IP);
+	game_server_port = DEFAULT_SERVER_PORT;
 
-	ai_height_weight = 1.0;
+	ai_height_weight = 20.0;
 	ai_line_weight = -20.0;
 	ai_empty_blocks_weight = 10.0;
+
+	auto_mode = 1;
 
 	if (argc > 1) {
 		// Manage commandline arguments
@@ -38,6 +40,8 @@ int main(int argc, char *argv[]) {
 }
 
 void error(char * message) {
+	m_deinit();
+	printf(message);
 	perror(message);
 	exit(EXIT_FAILURE);
 }
@@ -52,11 +56,15 @@ void swap(int * i, int * j) {
 void m_manageArgs(int argc, char *argv[]) {
 	int option;
 
-    while ((option = getopt(argc, argv,"zbh:l:e:s:p:")) != -1) {
+    while ((option = getopt(argc, argv,"dmh:l:e:s:p:")) != -1) {
         switch (option) {
-        	case 'z' :
+        	case 'd' :
         		debug = 1;
         		printf("[m_manageArgs] debug set to %d\n", debug);
+        		break;
+        	case 'm' :
+        		auto_mode = 0;
+        		printf("[m_manageArgs] auto_mode set to %d\n", auto_mode);
         		break;
         	case 'h' :
         		ai_height_weight = atof(optarg);
@@ -97,30 +105,30 @@ void m_printHelp(void) {
 	
 	printf(" -s SERVER IP 	Tries to connect to the IP specified\n");
 	printf(" -p PORT        Sets the port to use during network connections\n\n");
+
+	printf(" -d             Display debug information\n");
+	printf(" -m             Sets the game to manual mode (user can play Tetris)\n\n");
 	printf("\n\n");
 }
 
 void m_init(void) {
 	done = 0;
 
-	// Initliaze ncurses lib (libncurses5-dev)
+	// Initialize ncurses lib (libncurses5-dev)
 	initscr();
 	noecho();
 	keypad(stdscr, TRUE);
-	//nodelay(stdscr,TRUE);
 	cbreak();
 
-	if (strcmp(game_server_ip, DEFAULT_SERVER_IP) != 0) {
+	if (auto_mode == 1) {
 		net_init();
-		//net_connect(game_server_ip, game_server_port);
+		net_connect(game_server_ip, game_server_port);
 		nodelay(stdscr, TRUE); // Do not wait for kb_input
-
-		//net_send_name("BOKKE");
+		net_send_name("BOKKE");
 	}
 }
 
 void m_deinit(void) {
 	net_disconnect();
-
 	endwin();
 }
