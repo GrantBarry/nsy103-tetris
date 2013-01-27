@@ -39,4 +39,5 @@ unsigned int points;
 unsigned int debug;
 unsigned int auto_mode;
 
+
 #endif

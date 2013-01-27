@@ -14,7 +14,9 @@ void g_new_game(void) {
 		bl_set_block_type(&current_block, i_block);
 	}
 	else {
-		bl_set_block_type(&current_block, i_block); // TEMP !!!!!!!
+		// Wait for 130 GO <code_pirce> <code_piece_suivant>
+		net_wait_for_go();
+
 		ai_suggest_best_block_location();
 	}
 }
@@ -26,6 +28,8 @@ void g_cycle(int kb_input) {
 		g_manage_kb(kb_input);
 	}
 	else {
+		// TODO : Add network manage code here to manage all commands !!!!!!!!!
+
 		// Sleep half a second before sending code
 		usleep(500);
 	

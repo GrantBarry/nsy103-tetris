@@ -7,10 +7,10 @@
 // Describes the Tetris block type
 enum block_type {
 	i_block,
-	l_block,
 	o_block,
-	s_block,
+	l_block,
 	t_block,
+	s_block,
 	z_block,
 	u_block,
 	big_l_block,
@@ -236,8 +236,11 @@ void bl_rotate_clockwise(block_t * block);
 void bl_rotate_anti_clockwise(block_t * block);
 void bl_reflect(block_t * block);
 void bl_draw(const block_t * block);
-
+void bl_set_current_block(enum block_type t);
+void bl_set_next_block(enum block_type t);
+void bl_push_next_block(enum block_type t); // current_block becomes next_block and next_block is set
 
 block_t current_block;
+block_t next_block;
 
 #endif

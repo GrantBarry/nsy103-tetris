@@ -188,3 +188,17 @@ void bl_draw(const block_t * block) {
 		}
 	}
 }
+
+void bl_set_current_block(enum block_type t) {
+	bl_set_block_type(&current_block, t);
+}
+
+void bl_set_next_block(enum block_type t) {
+	bl_set_block_type(&next_block, t);
+}
+
+// current_block becomes next_block and next_block is set
+void bl_push_next_block(enum block_type t) {
+	bl_set_current_block(next_block.type);
+	bl_set_next_block(t);
+}

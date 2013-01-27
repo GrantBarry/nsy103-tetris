@@ -163,3 +163,23 @@ void net_get_response(int * code, char * command, char * data) {
 	net_recieve(net_socket, receiveBuffer, sizeof(receiveBuffer));
 	sscanf(receiveBuffer, "%d %s %s", code, command, data);
 }
+
+void net_wait_for_go() {
+	char buffer[NET_BUFFER_LENGTH];
+	int code = 0;
+	int currentPiece = 0;
+	int nextPiece = 0;
+	char command[NET_BUFFER_LENGTH];
+
+	recv(net_socket, buffer, sizeof(buffer), 0);
+	sscanf(buffer, "%d %s %d %d", &code, command, &currentPiece, &nextPiece);
+
+	if (code != 130) {
+		net_wait_for_go();
+	} else  {
+		if (strcmp("GO", command) == 0) {
+			bl_set_current_block(currentPiece-1);
+			bl_set_next_block(nextPiece-1);
+		}
+	}
+}

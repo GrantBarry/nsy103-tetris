@@ -25,6 +25,7 @@ void net_send_pass();
 void net_send_dump_request();
 void net_send_enemy_dump_request();
 void net_get_response(int * code, char * command, char * data);
+void net_wait_for_go(void);
 void net_disconnect(void);
 
 #endif
