@@ -11,9 +11,9 @@ int main(int argc, char *argv[]) {
 	strcpy(game_server_ip, DEFAULT_SERVER_IP);
 	game_server_port = DEFAULT_SERVER_PORT;
 
-	ai_height_weight = 20.0;
-	ai_line_weight = -20.0;
-	ai_empty_blocks_weight = 10.0;
+	ai_height_weight = 3.0;
+	ai_line_weight = -2.0;
+	ai_empty_blocks_weight = 5.0;
 
 	auto_mode = 1;
 

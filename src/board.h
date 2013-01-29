@@ -14,6 +14,7 @@ unsigned int b_remove_lines(void);
 void b_remove_line(int line);
 int b_is_full_line(int line);
 void b_insert_line(int data[BOARD_WIDTH]);
+void b_set_board_from_string(char * message);
 
 int board[BOARD_WIDTH][BOARD_HEIGHT];
 

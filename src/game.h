@@ -9,6 +9,7 @@
 void g_new_game(void);
 void g_cycle(int kb_input);
 void g_manage_kb(int kb_input);
+void g_manage_net_command(int * code, char * command, char * data);
 void g_draw(void);
 void g_game_over(void);
 void g_log_result(void);

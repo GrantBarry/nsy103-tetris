@@ -11,7 +11,8 @@ void g_new_game(void) {
 
 	// If we are in manual mode (auto_mode = 0), generate a block
 	if (auto_mode == 0) {
-		bl_set_block_type(&current_block, i_block);
+		srand ( time(NULL) );
+		bl_set_block_type(&current_block, rand()%9);
 	}
 	else {
 		// Wait for 130 GO <code_pirce> <code_piece_suivant>
@@ -92,6 +93,45 @@ void g_manage_kb(int kb_input) {
 			return;
 		default:
 			break;
+	}
+}
+
+void g_manage_net_command(int * code, char * command, char * data) {
+	int currentPiece = 0;
+	int nextPiece = 0;
+	char buffer[NET_BUFFER_LENGTH];
+	int piece, x, y, rotation;
+
+	if (!code || !command) {
+		return;
+	}
+
+	if (*code == 130 && strcmp("GO", command) == 0) {
+		if (!data) {
+			return;
+		} else {
+			sscanf(data, "%d %d", &currentPiece, &nextPiece);
+			bl_set_current_block(currentPiece-1);
+			bl_set_next_block(nextPiece-1);
+		}
+
+		return;
+	} else if (*code == 140) {
+		g_game_over();
+		return;
+	} else if (*code == 301) {
+		if (!data) {
+			return;
+		} else {
+			bzero(buffer, sizeof(buffer));
+			sscanf(data, "%s %d %d %d %d", buffer, piece, x, y, rotation);
+
+			b_set_board_from_string(data);
+			bl_set_block_type(&current_block, piece - 1);
+			current_block.x = x;
+			current_block.y = y;
+			current_block.rotation = rotation;
+		}
 	}
 }
 

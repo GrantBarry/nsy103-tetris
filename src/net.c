@@ -94,7 +94,7 @@ void net_send_name(char * name) {
 // Le client est prêt pour le début de la partie
 // 110 READY
 void net_send_ready(void) {
-	net_send(net_socket, "100 READY");
+	net_send(net_socket, "110 READY");
 }
 
 // Déplacement de la pièce vers la gauche

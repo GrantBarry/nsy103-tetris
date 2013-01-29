@@ -147,3 +147,17 @@ void b_insert_line(int data[BOARD_WIDTH]) {
 		board[x][BOARD_HEIGHT-1] = data[x];
 	}
 }
+
+void b_set_board_from_string(char * message) {
+	int x, y;
+	if (!message) {
+		return;
+	}
+	for (y = 0; y < BOARD_HEIGHT-1; y++) {
+		for (x = 0; x < BOARD_WIDTH; x++) {
+			if (message[(y*BOARD_WIDTH)+x] == '1') {
+				board[x][y] = 1;
+			}
+		}
+	}
+}
