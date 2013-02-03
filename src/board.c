@@ -104,7 +104,7 @@ unsigned int b_remove_lines(void) {
 void b_remove_line(int line) {
 	int x, y;
 
-	if (line > BOARD_HEIGHT) {
+	if (line >= BOARD_HEIGHT) {
 		return;
 	}
 
@@ -126,9 +126,11 @@ int b_is_full_line(int line) {
 	for (y = 0; y < BOARD_HEIGHT; y++) {
 		i = 0;
 		for (x = 0; x < BOARD_WIDTH; x++) {
-			i += board[x][y];
+			if (board[x][y] > 0) {
+				i++;
+			}
 		}
-		if (i >= BOARD_WIDTH) {
+		if (i == BOARD_WIDTH) {
 			return 1;
 		}
 	}
