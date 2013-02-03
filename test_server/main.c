@@ -51,12 +51,14 @@ int auto_response(int sock, char * command) {
     // Reply to 280 DUMP
     if (strcmp("280 DUMP", command) == 0) {
         strcpy(buffer, "301 OK ");
-        for (y = 0; y < 24*12; y++) {
-            if (y > 23*12) {
-                strcat(buffer, "1");
-            } else {
-                strcat(buffer, "0");
-            }            
+        for (y = 0; y < 25; y++) {
+            for (x = 0; x < 12; x++) {          
+                if (y > 23) {
+                    strcat(buffer, "1");
+                } else {
+                    strcat(buffer, "0");
+                }            
+            }
         }
         strcat(buffer, " 1 0 0 2");
         send_string(sock, buffer, strlen(buffer));

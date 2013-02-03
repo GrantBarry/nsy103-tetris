@@ -162,5 +162,5 @@ void net_wait_for_response(void) {
 	net_current_code = 0;
 	bzero(net_current_command, sizeof(net_current_command));
 	bzero(net_current_data, sizeof(net_current_data));
-	sscanf(receiveBuffer, "%d %s %s", &net_current_code, net_current_command, net_current_data);
+	sscanf(receiveBuffer, "%d %s %[^\n]", &net_current_code, net_current_command, net_current_data);
 }

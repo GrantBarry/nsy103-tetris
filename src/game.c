@@ -106,9 +106,10 @@ void g_manage_server_commands(void) {
 	int currentPiece = 0;
 	int nextPiece = 0;
 	char buffer[NET_BUFFER_LENGTH];
-	int piece, x, y, next_piece;
+	int piece, x, y, next_piece, num_new_lines;
+	int line[BOARD_WIDTH];
 
-	if (net_current_code == 140) {
+	if (net_current_code == 140 && strcmp("END", net_current_command) == 0) {
 		g_game_over();
 		return;
 	} else if (net_current_code == 301 && strcmp("OK", net_current_command) == 0) {
@@ -123,20 +124,71 @@ void g_manage_server_commands(void) {
 			sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
 
 			b_set_board_from_string(net_current_data);
-			bl_set_current_block(piece - 1);
+			bl_reset(&current_block);
 			current_block.x = x;
 			current_block.y = y;
-			bl_set_next_block(next_piece);
+			bl_set_current_block(piece - 1);
+			bl_set_next_block(next_piece - 1);
 			ai_suggest_best_block_location();
 		}
 	} else if (net_current_code == 310 && strcmp("OK", net_current_command) == 0) {
-			next_piece = 0;
-			sscanf(net_current_data, "%d", &next_piece);
+		next_piece = 0;
+		sscanf(net_current_data, "%d", &next_piece);
+		mvprintw( 26, 2, "next piece %d", next_piece);
+		refresh();
+		sleep(3);
 
-			bl_reset(&current_block);
-			bl_push_next_block(next_piece - 1);
+		bl_reset(&current_block);
+		bl_push_next_block(next_piece - 1);
 
-			ai_suggest_best_block_location();
+		ai_suggest_best_block_location();
+	} else if (net_current_code == 320 && strcmp("OK", net_current_command) == 0) {
+		num_new_lines = 0;
+		bzero(buffer, sizeof(buffer));
+		sscanf(net_current_data, "%d %s", &num_new_lines, buffer);
+		mvprintw( 26, 2, "num_new_lines %d, buffer: %s", num_new_lines, buffer);
+		mvprintw( 27, 2, "net_current_data: %s", net_current_data);
+		refresh();
+		sleep(3);
+
+		for (x = 0; x < num_new_lines; x++) {
+			bzero(&line, sizeof(line));
+			for (y = 0; y < BOARD_WIDTH; y++) {
+				if (buffer[x*BOARD_WIDTH+y] == '1') {
+					line[y] = 1;
+				} else {
+					line[y] = 0;
+				}
+			}
+			b_insert_line(line);
+		}
+
+		ai_suggest_best_block_location();
+	} else if (net_current_code == 330 && strcmp("OK", net_current_command) == 0) {
+		bzero(buffer, sizeof(buffer));
+		next_piece = 0;		
+		num_new_lines = 0;
+		sscanf(net_current_data, "%d %d %s", &next_piece, &num_new_lines, buffer);
+		mvprintw( 26, 2, "next piece %d, num_new_lines %d, buffer: %s", next_piece,num_new_lines,buffer);
+		mvprintw( 27, 2, "net_current_data: %s", net_current_data);
+		refresh();
+		sleep(3);
+		bl_reset(&current_block);
+		bl_push_next_block(next_piece - 1);
+
+		for (x = 0; x < num_new_lines; x++) {
+			bzero(&line, sizeof(line));
+			for (y = 0; y < BOARD_WIDTH; y++) {
+				if (buffer[x*BOARD_WIDTH+y] == '1') {
+					line[y] = 1;
+				} else {
+					line[y] = 0;
+				}
+			}
+			b_insert_line(line);
+		}
+
+		ai_suggest_best_block_location();
 	} else if (net_current_code >= 400) {
 		// Pour toute commande incorrecte ou incomprise, on va demander une nouvelle copie de la table
 		net_send_dump_request();
@@ -148,6 +200,7 @@ void g_draw(void) {
 	b_draw_board();
 	bl_draw(&current_block);
 	mvprintw(2, BOARD_DRAW_OFFSET + BOARD_WIDTH + 2, "Points: %d", points);
+
 	if (auto_mode == 1) {
 		// Draw the ai block in color
 		start_color();
@@ -156,7 +209,7 @@ void g_draw(void) {
 		bl_draw(&ai_block);
 		attroff(COLOR_PAIR(1));
 	}
-	//usleep(50000);
+
 	refresh();
 }
 
