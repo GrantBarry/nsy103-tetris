@@ -10,6 +10,73 @@
 #include <string.h>
 #include <sys/types.h>
 
+void send_string(int sock, char * str, int len) {
+    int i;
+    if (strlen(str) > 0) {
+        printf("envoie '%s'\n", str);
+        i = send(sock, str, len, 0);
+        printf("%d octets envoyes\n", i);            
+    }    
+}
+
+// Returns 0 if the command is known, else return -1
+int auto_response(int sock, char * command) {
+    char buffer[2048];
+    int x, y;
+
+    printf("enter auto_response\n");
+
+    bzero(buffer, sizeof(buffer));
+
+    // Reply to 100 HELLO
+    if (strncmp("100 HELLO", command, strlen("100 HELLO")) == 0) {
+        strcpy(buffer, "120 HELLO ");
+        x = strlen("100 HELLO ");
+        while (command[x] != '\0') {
+            buffer[x] = command[x];
+            x++;
+        }
+        command[x] = '\0';
+        send_string(sock, buffer, strlen(buffer));
+        return 0;
+    }
+
+    // Reply to 110 READY
+    if (strcmp("110 READY", command) == 0) {
+        strcpy(buffer, "130 GO 1 2");
+        send_string(sock, buffer, strlen(buffer));
+        return 0;
+    }
+
+    // Reply to 280 DUMP
+    if (strcmp("280 DUMP", command) == 0) {
+        strcpy(buffer, "301 OK ");
+        for (y = 0; y < 24*12; y++) {
+            if (y > 23*12) {
+                strcat(buffer, "1");
+            } else {
+                strcat(buffer, "0");
+            }            
+        }
+        strcat(buffer, " 1 0 0 2");
+        send_string(sock, buffer, strlen(buffer));
+        return 0;
+    }
+
+    if (strcmp(command, "200 LEFT") == 0 ||
+        strcmp(command, "210 RIGHT") == 0 ||
+        strcmp(command, "220 DOWN") == 0 ||
+        strcmp(command, "240 ROTATE_R") == 0 ||
+        strcmp(command, "250 ROTATE_L") == 0 ||
+        strcmp(command, "260 INVERSE") == 0) {
+        strcpy(buffer, "300 OK");
+        send_string(sock, buffer, strlen(buffer));
+        return 0;        
+    }
+
+    return -1;
+}
+
 int main(int argc, char *argv[])
 {
     int ecoute_fd = 0;
@@ -52,27 +119,24 @@ int main(int argc, char *argv[])
     done = 0;
 
     while (done == 0) {
+        bzero(buffer, sizeof(buffer));
+        recv(connexion_fd, buffer, sizeof(buffer), 0);
+        printf("donnees du client : %s\n", buffer);
 
-        memset(buffer, '\0', sizeof(buffer));
-        i = recv(connexion_fd, buffer, sizeof(buffer), MSG_PEEK);
+        if (auto_response(connexion_fd, buffer) != 0) {
+            printf("auto_response return != 0\n");
 
-        if (i > 0) {
-            recv(connexion_fd, buffer, sizeof(buffer), 0);
-            printf("donnees du client : %s\n", buffer);
+            printf("saisir une reponse :");
+            gets(buffer);
+
+            if (strcmp("quit", buffer) == 0) {
+                printf("la commande 'quit' a ete donnee\n");
+                done = 1;
+                break;
+            }
+
+            send_string(connexion_fd, buffer, strlen(buffer));
         }
-
-        printf("saisir une reponse :");
-        gets(buffer);
-
-        if (strcmp("quit", buffer) == 0) {
-            printf("la commande 'quit' a ete donnee\n");
-            done = 1;
-            break;
-        }
-        
-        printf("envoie '%s'\n", buffer);
-        i = send(connexion_fd, buffer, strlen(buffer), 0);
-        printf("%d octets envoyes\n", i);
     }
 
     printf("ferme les connexions 'connexion_fd' et 'ecoute_fd'\n");

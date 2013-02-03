@@ -3,39 +3,43 @@
 
 
 void g_new_game(void) {
+	int currentPiece = 0;
+	int nextPiece = 0;	
+
 	points = 0;
-
 	bl_reset(&current_block);
-
-	net_send_ready();
 
 	// If we are in manual mode (auto_mode = 0), generate a block
 	if (auto_mode == 0) {
 		srand ( time(NULL) );
-		bl_set_block_type(&current_block, rand()%9);
-	}
-	else {
-		// Wait for 130 GO <code_pirce> <code_piece_suivant>
-		net_wait_for_go();
+		bl_set_block_type(&current_block, rand() % 9);
+	} else {
+		net_send_name("BOKKE");
 
-		ai_suggest_best_block_location();
+		net_send_command("110 READY");
+		if (net_current_code == 130 && strcmp("GO", net_current_command) == 0) {
+			sscanf(net_current_data, "%d %d", &currentPiece, &nextPiece);
+			bl_set_current_block(currentPiece - 1);
+			bl_set_next_block(nextPiece - 1);
+			ai_suggest_best_block_location();
+		}
 	}
 }
 
 void g_cycle(int kb_input) {
 	int x, y;
 
-	if (auto_mode == 0) {
-		g_manage_kb(kb_input);
-	}
-	else {
-		// TODO : Add network manage code here to manage all commands !!!!!!!!!
-
+	if (auto_mode == 1) {
 		// Sleep half a second before sending code
-		usleep(500);
-	
+		usleep(500000);
+
 		// Move the block to the best location
-		ai_move_block_to_best_location(&current_block);
+		g_move_block_to_best_location(&current_block);
+
+		//g_manage_server_commands();
+	} else {
+		g_manage_kb(kb_input);
+
 	}
 
 	bl_move_down(&current_block);
@@ -54,84 +58,88 @@ void g_cycle(int kb_input) {
 		}
 
 		points += b_remove_lines();
-
-		bl_reset(&current_block);
-		bl_set_block_type(&current_block, rand()%9);
-		if (auto_mode == 1) {
-			// Get a new block and calculate the best location
-			ai_suggest_best_block_location();
+	
+		if (auto_mode == 0) {
+			bl_reset(&current_block);
+			bl_set_block_type(&current_block, rand() % 9);
 		}
+	}
+
+	if (auto_mode == 1) {
+		g_manage_server_commands();
 	}
 }
 
 void g_manage_kb(int kb_input) {
 	switch (kb_input) {
-		case 'q':
-		case 'Q':
-			done = 1;
-			return;
-		case 'a':
-		case 'A':
-			bl_rotate_anti_clockwise(&current_block);
-			return;
-		case 'z':
-		case 'Z':
-			bl_rotate_clockwise(&current_block);
-			return;
-		case 'r':
-		case 'R':
-			bl_reflect(&current_block);
-			return;
-		case KEY_LEFT:
-			bl_move_left(&current_block);
-			return;
-		case KEY_RIGHT:
-			bl_move_right(&current_block);
-			return;
-		case KEY_DOWN:
-			b_drop_block(&current_block);
-			return;
-		default:
-			break;
+	case 'q':
+	case 'Q':
+		done = 1;
+		return;
+	case 'a':
+	case 'A':
+		bl_rotate_anti_clockwise(&current_block);
+		return;
+	case 'z':
+	case 'Z':
+		bl_rotate_clockwise(&current_block);
+		return;
+	case 'r':
+	case 'R':
+		bl_reflect(&current_block);
+		return;
+	case KEY_LEFT:
+		bl_move_left(&current_block);
+		return;
+	case KEY_RIGHT:
+		bl_move_right(&current_block);
+		return;
+	case KEY_DOWN:
+		b_drop_block(&current_block);
+		return;
+	default:
+		break;
 	}
 }
 
-void g_manage_net_command(int * code, char * command, char * data) {
+void g_manage_server_commands(void) {
 	int currentPiece = 0;
 	int nextPiece = 0;
 	char buffer[NET_BUFFER_LENGTH];
-	int piece, x, y, rotation;
+	int piece, x, y, next_piece;
 
-	if (!code || !command) {
-		return;
-	}
-
-	if (*code == 130 && strcmp("GO", command) == 0) {
-		if (!data) {
-			return;
-		} else {
-			sscanf(data, "%d %d", &currentPiece, &nextPiece);
-			bl_set_current_block(currentPiece-1);
-			bl_set_next_block(nextPiece-1);
-		}
-
-		return;
-	} else if (*code == 140) {
+	if (net_current_code == 140) {
 		g_game_over();
 		return;
-	} else if (*code == 301) {
-		if (!data) {
+	} else if (net_current_code == 301 && strcmp("OK", net_current_command) == 0) {
+		if (!net_current_data) {
 			return;
 		} else {
 			bzero(buffer, sizeof(buffer));
-			sscanf(data, "%s %d %d %d %d", buffer, piece, x, y, rotation);
+			piece = 0;
+			x = 0;
+			y = 0;
+			next_piece = 0;
+			sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
 
-			b_set_board_from_string(data);
-			bl_set_block_type(&current_block, piece - 1);
+			b_set_board_from_string(net_current_data);
+			bl_set_current_block(piece - 1);
 			current_block.x = x;
 			current_block.y = y;
-			current_block.rotation = rotation;
+			bl_set_next_block(next_piece);
+			ai_suggest_best_block_location();
 		}
+	} else if (net_current_code == 310 && strcmp("OK", net_current_command) == 0) {
+			next_piece = 0;
+			sscanf(net_current_data, "%d", &next_piece);
+
+			bl_reset(&current_block);
+			bl_push_next_block(next_piece - 1);
+
+			ai_suggest_best_block_location();
+	} else if (net_current_code >= 400) {
+		// Pour toute commande incorrecte ou incomprise, on va demander une nouvelle copie de la table
+		net_send_dump_request();
 	}
 }
 
@@ -154,18 +162,18 @@ void g_draw(void) {
 
 void g_game_over(void) {
 	clear();
-	mvprintw( 1,1,"   _____                      ");
-	mvprintw( 2,1,"  / ____|                     ");
-	mvprintw( 3,1," | |  __  __ _ _ __ ___   ___ ");
-	mvprintw( 4,1," | | |_ |/ _` | /_ ` _ \\ / _ \\");
-	mvprintw( 5,1," | |__| | (_| | | | | | |  __/");
-	mvprintw( 6,1,"  \\_____|\\__,_|_| |_| |_|\\___|");
-	mvprintw( 8,1,"   ____                 ");
-	mvprintw( 9,1,"  / __ \\                ");
-	mvprintw(10,1," | |  | |_   _____ _ __ ");
-	mvprintw(11,1," | |  | \\ \\ / / _ \\ |__|");
-	mvprintw(12,1," | |__| |\\ V /  __/ |   ");
-	mvprintw(13,1,"  \\____/  \\_/ \\___|_|   ");
+	mvprintw( 1, 1, "   _____                      ");
+	mvprintw( 2, 1, "  / ____|                     ");
+	mvprintw( 3, 1, " | |  __  __ _ _ __ ___   ___ ");
+	mvprintw( 4, 1, " | | |_ |/ _` | /_ ` _ \\ / _ \\");
+	mvprintw( 5, 1, " | |__| | (_| | | | | | |  __/");
+	mvprintw( 6, 1, "  \\_____|\\__,_|_| |_| |_|\\___|");
+	mvprintw( 8, 1, "   ____                 ");
+	mvprintw( 9, 1, "  / __ \\                ");
+	mvprintw(10, 1, " | |  | |_   _____ _ __ ");
+	mvprintw(11, 1, " | |  | \\ \\ / / _ \\ |__|");
+	mvprintw(12, 1, " | |__| |\\ V /  __/ |   ");
+	mvprintw(13, 1, "  \\____/  \\_/ \\___|_|   ");
 	refresh();
 	done = 1;
 	sleep(2);
@@ -179,10 +187,69 @@ void g_log_result(void) {
 		error("unable to open log file");
 	}
 	fprintf(file_pointer, "ai_height_weight=%f;ai_line_weight=%f;ai_empty_blocks_weight=%f;points=%d\n",
-		ai_height_weight,
-		ai_line_weight,
-		ai_empty_blocks_weight,
-		points
-	);
-	fclose(file_pointer);	
+	        ai_height_weight,
+	        ai_line_weight,
+	        ai_empty_blocks_weight,
+	        points
+	       );
+	fclose(file_pointer);
+}
+
+void g_move_block_to_best_location(block_t *block) {
+	if (!block) {
+		return;
+	}
+
+	// Manage rotation
+	if (ai_block.rotation > block->rotation && ai_block.rotation != 270) {
+		net_send_command("240 ROTATE_R");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_rotate_clockwise(block);
+		}
+		return;
+	}
+
+	if (ai_block.rotation == 270 && ai_block.rotation != block->rotation) {
+		net_send_command("250 ROTATE_L");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_rotate_anti_clockwise(block);
+		}
+		return;
+	}
+
+	// Manage coordinates
+	if (block->x < ai_block.x) {
+		net_send_command("210 RIGHT");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_move_right(block);
+		}
+		return;
+	}
+	if (block->x > ai_block.x) {
+		net_send_command("200 LEFT");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_move_left(block);
+		}
+		return;
+	}
+
+	// And relfection
+	if (ai_block.reflected != block->reflected) {
+		net_send_command("260 INVERSE");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_reflect(block);
+		}
+		return;
+	}
+
+	net_send_command("230 FULLDOWN");
+	// Server accepted the command
+	if (net_current_code >= 300 && net_current_code <= 399) {
+		b_drop_block(block);
+	}
 }

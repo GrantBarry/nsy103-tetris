@@ -8,7 +8,7 @@ BINARY=gba_tetris
 CFILES=$(addprefix $(SRC),$(SOURCES))
 BINFILE=$(addprefix $(BIN),$(BINARY))
 
-all: compile run
+all: compile
 
 compile:
 	gcc -o $(BINFILE) $(CFILES) -lncurses

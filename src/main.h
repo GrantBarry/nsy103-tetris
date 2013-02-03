@@ -11,8 +11,8 @@
 #include "ai.h"
 
 
-void error(char * message);
-void swap(int * i, int * j);
+void error(char *message);
+void swap(int *i, int *j);
 
 void m_manageArgs(int argc, char *argv[]);
 void m_printHelp(void);

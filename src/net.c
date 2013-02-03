@@ -12,12 +12,12 @@ void net_init(void) {
 	printf("[net_init] net_socket set to %d\n", net_socket);
 }
 
-void net_connect(char * ip, int port) {
+void net_connect(char *ip, int port) {
 	memset(&net_socket_address, 0, sizeof(net_socket_address));
 	net_socket_address.sin_family = AF_INET;
 	net_socket_address.sin_addr.s_addr = inet_addr(ip);
 	net_socket_address.sin_port = htons(port);
-	
+
 	if (connect(net_socket, (struct sockaddr *)&net_socket_address, sizeof(net_socket_address)) < 0) {
 		error("ERROR connecting");
 	}
@@ -31,27 +31,23 @@ void net_disconnect(void) {
 	printf("[net_disconnect] closed socket\n");
 }
 
-void net_send(int socket, char * buffer) {
+void net_send(int socket, char *buffer) {
 	int total = 0;
 	int length = strlen(buffer);
 	int bytesleft = length;
 	int n;
 
 	while (total < length) {
-		n = send(socket, buffer+total, bytesleft, MSG_DONTWAIT);
+		n = send(socket, buffer + total, bytesleft, MSG_DONTWAIT);
 		if (n == -1) {
 			break;
 		}
 		total += n;
 		bytesleft -= n;
 	}
-	
-	// Store a copy of the last net send command
-	memset(net_last_command, '\0', sizeof(net_last_command));
-	strcpy(net_last_command, buffer);
 }
 
-int net_recieve(int socket, char * buffer, int length) {
+int net_recieve(int socket, char *buffer, int length) {
 	int bytes_in_socket = 0;
 
 	bytes_in_socket = recv(socket, buffer, length, MSG_PEEK);
@@ -67,34 +63,30 @@ int net_recieve(int socket, char * buffer, int length) {
 
 // Le client salue le serveur et lui donne le nom qu'il choisi pour jouer
 // 100 HELLO <nom_client>
-void net_send_name(char * name) {
+void net_send_name(char *name) {
 	char sendBuffer[NET_BUFFER_LENGTH];
-	int code = 0;
-	char command[NET_BUFFER_LENGTH];
-	char data[NET_BUFFER_LENGTH];
-	
 	memset(sendBuffer, '\0', sizeof(sendBuffer));
 	sprintf(sendBuffer, "100 HELLO %s", name);
-	net_send(net_socket, sendBuffer);
 
-	net_get_response(&code, command, data);
+	net_send_command(sendBuffer);
 
-	if (code != 120) {
-		error("[net_send_name] ERROR! Server did not accept the name (wrong return code)\n");
-	}
-	if (strcmp("HELLO", command) != 0) {
-		sprintf(sendBuffer, "[net_send_name] ERROR! Server did not accept the name (wrong command) %s\n", command);
+	if (net_current_code != 120) {
+		sprintf(sendBuffer, "[net_send_name] ERROR! Server did not accept the name (wrong return code) : %d\n", net_current_code);
 		error(sendBuffer);
 	}
-	if (strcmp(name, data) != 0) {
-		error("[net_send_name] ERROR! Server did not accept the name (wrong name)\n");	
+	if (strcmp("HELLO", net_current_command) != 0) {
+		sprintf(sendBuffer, "[net_send_name] ERROR! Server did not accept the name (wrong command) %s\n", net_current_command);
+		error(sendBuffer);
+	}
+	if (strcmp(name, net_current_data) != 0) {
+		error("[net_send_name] ERROR! Server did not accept the name (wrong name)\n");
 	}
 }
 
 // Le client est prêt pour le début de la partie
 // 110 READY
 void net_send_ready(void) {
-	net_send(net_socket, "110 READY");
+	net_send_command("110 READY");
 }
 
 // Déplacement de la pièce vers la gauche
@@ -157,29 +149,18 @@ void net_send_enemy_dump_request() {
 	net_send(net_socket, "290 DUMPENEMY");
 }
 
-void net_get_response(int * code, char * command, char * data) {
-	char receiveBuffer[NET_BUFFER_LENGTH];
-	bzero(receiveBuffer, sizeof(receiveBuffer));
-	net_recieve(net_socket, receiveBuffer, sizeof(receiveBuffer));
-	sscanf(receiveBuffer, "%d %s %s", code, command, data);
+void net_send_command(char * send_command) {
+	net_send(net_socket, send_command);
+	net_wait_for_response();
 }
 
-void net_wait_for_go() {
-	char buffer[NET_BUFFER_LENGTH];
-	int code = 0;
-	int currentPiece = 0;
-	int nextPiece = 0;
-	char command[NET_BUFFER_LENGTH];
+void net_wait_for_response(void) {
+	char receiveBuffer[NET_BUFFER_LENGTH];
+	bzero(receiveBuffer, sizeof(receiveBuffer));
+	recv(net_socket, receiveBuffer, sizeof(receiveBuffer), 0);
 
-	recv(net_socket, buffer, sizeof(buffer), 0);
-	sscanf(buffer, "%d %s %d %d", &code, command, &currentPiece, &nextPiece);
-
-	if (code != 130) {
-		net_wait_for_go();
-	} else  {
-		if (strcmp("GO", command) == 0) {
-			bl_set_current_block(currentPiece-1);
-			bl_set_next_block(nextPiece-1);
-		}
-	}
+	net_current_code = 0;
+	bzero(net_current_command, sizeof(net_current_command));
+	bzero(net_current_data, sizeof(net_current_data));
+	sscanf(receiveBuffer, "%d %s %s", &net_current_code, net_current_command, net_current_data);
 }

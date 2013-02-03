@@ -6,15 +6,15 @@
 #include "game.h"
 
 void b_draw_board(void);
-unsigned int b_does_collide(block_t * block);
+unsigned int b_does_collide(block_t *block);
 int b_get_num_lines(void);
 int b_get_num_empty_blocks(void);
-void b_drop_block(block_t * block);
+void b_drop_block(block_t *block);
 unsigned int b_remove_lines(void);
 void b_remove_line(int line);
 int b_is_full_line(int line);
 void b_insert_line(int data[BOARD_WIDTH]);
-void b_set_board_from_string(char * message);
+void b_set_board_from_string(char *message);
 
 int board[BOARD_WIDTH][BOARD_HEIGHT];
 
