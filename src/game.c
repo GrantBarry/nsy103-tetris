@@ -109,19 +109,26 @@ void g_manage_server_commands(void) {
 	int piece, x, y, next_piece, num_new_lines;
 	int line[BOARD_WIDTH];
 
+	mvprintw( 26, 2, "enter server commands with %d/%s/%s", net_current_code, net_current_command, net_current_data);
+	refresh();
+	sleep(3);
+
 	if (net_current_code == 140 && strcmp("END", net_current_command) == 0) {
 		g_game_over();
 		return;
 	} else if (net_current_code == 301 && strcmp("OK", net_current_command) == 0) {
-		if (!net_current_data) {
-			return;
-		} else {
+		// if (!net_current_data) {
+		// 	return;
+		// } else {
 			bzero(buffer, sizeof(buffer));
 			piece = 0;
 			x = 0;
 			y = 0;
 			next_piece = 0;
 			sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
+			mvprintw( 26, 2, "piece %d at %d,%d next %d, buffer: %s", piece, x, y, next_piece, buffer);
+			refresh();
+			sleep(3);
 
 			b_set_board_from_string(net_current_data);
 			bl_reset(&current_block);
@@ -130,7 +137,7 @@ void g_manage_server_commands(void) {
 			bl_set_current_block(piece - 1);
 			bl_set_next_block(next_piece - 1);
 			ai_suggest_best_block_location();
-		}
+		// }
 	} else if (net_current_code == 310 && strcmp("OK", net_current_command) == 0) {
 		next_piece = 0;
 		sscanf(net_current_data, "%d", &next_piece);
@@ -191,7 +198,8 @@ void g_manage_server_commands(void) {
 		ai_suggest_best_block_location();
 	} else if (net_current_code >= 400) {
 		// Pour toute commande incorrecte ou incomprise, on va demander une nouvelle copie de la table
-		net_send_dump_request();
+		net_send_command("280 DUMP");
+		g_manage_server_commands();
 	}
 }
 
