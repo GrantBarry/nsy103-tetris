@@ -1,4 +1,3 @@
-
 #include "net.h"
 
 void net_init(void) {
@@ -47,19 +46,19 @@ void net_send(int socket, char *buffer) {
 	}
 }
 
-int net_recieve(int socket, char *buffer, int length) {
-	int bytes_in_socket = 0;
+// int net_recieve(int socket, char *buffer, int length) {
+// 	int bytes_in_socket = 0;
 
-	bytes_in_socket = recv(socket, buffer, length, MSG_PEEK);
-	if (debug == 1) {
-		printf("[net_recieve] received %d bytes: %s", bytes_in_socket, buffer);
-	}
-	if (bytes_in_socket > 0) {
-		memset(buffer, '\0', length);
-		return recv(socket, buffer, length, 0);
-	}
-	return bytes_in_socket;
-}
+// 	bytes_in_socket = recv(socket, buffer, length, MSG_PEEK);
+// 	if (debug == 1) {
+// 		printf("[net_recieve] received %d bytes: %s", bytes_in_socket, buffer);
+// 	}
+// 	if (bytes_in_socket > 0) {
+// 		memset(buffer, '\0', length);
+// 		return recv(socket, buffer, length, 0);
+// 	}
+// 	return bytes_in_socket;
+// }
 
 // Le client salue le serveur et lui donne le nom qu'il choisi pour jouer
 // 100 HELLO <nom_client>
@@ -81,72 +80,6 @@ void net_send_name(char *name) {
 	if (strcmp(name, net_current_data) != 0) {
 		error("[net_send_name] ERROR! Server did not accept the name (wrong name)\n");
 	}
-}
-
-// Le client est prêt pour le début de la partie
-// 110 READY
-void net_send_ready(void) {
-	net_send_command("110 READY");
-}
-
-// Déplacement de la pièce vers la gauche
-// 200 LEFT
-void net_send_left(void) {
-	net_send(net_socket, "200 LEFT");
-}
-
-// Déplacement de la pièce vers la droite
-// 210 RIGHT
-void net_send_right(void) {
-	net_send(net_socket, "210 RIGHT");
-}
-
-// Déplacement de la pièce d'une ligne vers le bas
-// 220 DOWN
-void net_send_down(void) {
-	net_send(net_socket, "220 DOWN");
-}
-
-// Déplacement de la pièce jusqu'au bas du tableau
-// 230 FULLDOWN
-void net_send_full_down(void) {
-	net_send(net_socket, "230 FULLDOWN");
-}
-
-// Rotation de la pièce dans le sens horaire
-// 240 ROTATE_R
-void net_send_rotate_right(void) {
-	net_send(net_socket, "240 ROTATE_R");
-}
-
-// Rotation de la pièce dans le sens anti-horaire
-// 250 ROTATE_L
-void net_send_rotate_left(void) {
-	net_send(net_socket, "250 ROTATE_L");
-}
-
-// Symétrie horizontale de la pièce
-// 260 INVERSE
-void net_send_invert(void) {
-	net_send(net_socket, "260 INVERSE");
-}
-
-// Ne rien faire
-// 270 PASS
-void net_send_pass() {
-	net_send(net_socket, "270 PASS");
-}
-
-// Demander au serveur une copie du tableau et des pièces
-// 280 DUMP
-void net_send_dump_request() {
-	net_send(net_socket, "280 DUMP");
-}
-
-// Demander au serveur une copie du tableau et des pièces de l'adversaire
-// 290 DUMPENEMY
-void net_send_enemy_dump_request() {
-	net_send(net_socket, "290 DUMPENEMY");
 }
 
 void net_send_command(char * send_command) {

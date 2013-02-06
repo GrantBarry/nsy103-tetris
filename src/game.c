@@ -14,7 +14,7 @@ void g_new_game(void) {
 		srand ( time(NULL) );
 		bl_set_block_type(&current_block, rand() % 9);
 	} else {
-		net_send_name("BOKKE");
+		net_send_name("Eric_et_Grant");
 
 		net_send_command("110 READY");
 		if (net_current_code == 130 && strcmp("GO", net_current_command) == 0) {
