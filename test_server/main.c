@@ -10,11 +10,28 @@
 #include <string.h>
 #include <sys/types.h>
 
+int net_send(int socket, char *buffer) {
+    int total = 0;
+    int length = strlen(buffer);
+    int bytesleft = length;
+    int n;
+
+    while (total < length) {
+        n = send(socket, buffer + total, bytesleft, MSG_DONTWAIT);
+        if (n == -1) {
+            break;
+        }
+        total += n;
+        bytesleft -= n;
+    }
+    return total;
+}
+
 void send_string(int sock, char * str, int len) {
     int i;
     if (strlen(str) > 0) {
         printf("envoie '%s'\n", str);
-        i = send(sock, str, len, 0);
+        i = net_send(sock, str);
         printf("%d octets envoyes\n", i);            
     }    
 }
@@ -76,6 +93,20 @@ int auto_response(int sock, char * command) {
         return 0;        
     }
 
+    // Reply to 230 FULLDOWN
+    if (strcmp("230 FULLDOWN", command) == 0) {
+        y = 1+(rand() % 5); // Generate a new random piece
+        x = rand() % 5;
+        printf("x = %d and y = %d\n", x, y);
+        if (x == 4) {            
+            sprintf(buffer, "330 OK %d 1 010101010101", y);
+        } else {
+            sprintf(buffer, "310 OK %d", y);
+        }
+        send_string(sock, buffer, strlen(buffer));
+        return 0;
+    }
+
     return -1;
 }
 
@@ -109,7 +140,6 @@ int main(int argc, char *argv[])
     }
 
     printf("listen 'ecoute_fd'\n");
-    sleep(1);
     if (listen(ecoute_fd, 1) != 0) {
         printf("\n\nerreur %d listen socket 'ecoute_fd'\n\n", errno);
         exit(errno);
@@ -124,6 +154,7 @@ int main(int argc, char *argv[])
         bzero(buffer, sizeof(buffer));
         recv(connexion_fd, buffer, sizeof(buffer), 0);
         printf("donnees du client : %s\n", buffer);
+        sleep(1);
 
         if (auto_response(connexion_fd, buffer) != 0) {
             printf("auto_response return != 0\n");
@@ -133,6 +164,8 @@ int main(int argc, char *argv[])
 
             if (strcmp("quit", buffer) == 0) {
                 printf("la commande 'quit' a ete donnee\n");
+                strcpy(buffer, "140 END");
+                send_string(connexion_fd, buffer, strlen(buffer));
                 done = 1;
                 break;
             }

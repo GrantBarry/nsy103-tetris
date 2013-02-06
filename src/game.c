@@ -36,7 +36,6 @@ void g_cycle(int kb_input) {
 		// Move the block to the best location
 		g_move_block_to_best_location(&current_block);
 
-		//g_manage_server_commands();
 	} else {
 		g_manage_kb(kb_input);
 
@@ -109,41 +108,37 @@ void g_manage_server_commands(void) {
 	int piece, x, y, next_piece, num_new_lines;
 	int line[BOARD_WIDTH];
 
-	mvprintw( 26, 2, "enter server commands with %d/%s/%s", net_current_code, net_current_command, net_current_data);
-	refresh();
-	sleep(3);
+	// mvprintw( 26, 2, "enter server commands with %d/%s/%s", net_current_code, net_current_command, net_current_data);
+	// refresh();
+	// usleep(500000);
 
 	if (net_current_code == 140 && strcmp("END", net_current_command) == 0) {
 		g_game_over();
 		return;
 	} else if (net_current_code == 301 && strcmp("OK", net_current_command) == 0) {
-		// if (!net_current_data) {
-		// 	return;
-		// } else {
-			bzero(buffer, sizeof(buffer));
-			piece = 0;
-			x = 0;
-			y = 0;
-			next_piece = 0;
-			sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
-			mvprintw( 26, 2, "piece %d at %d,%d next %d, buffer: %s", piece, x, y, next_piece, buffer);
-			refresh();
-			sleep(3);
+		bzero(buffer, sizeof(buffer));
+		piece = 0;
+		x = 0;
+		y = 0;
+		next_piece = 0;
+		sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
+		// mvprintw( 26, 2, "piece %d at %d,%d next %d, buffer: %s", piece, x, y, next_piece, buffer);
+		// refresh();
+		// sleep(3);
 
-			b_set_board_from_string(net_current_data);
-			bl_reset(&current_block);
-			current_block.x = x;
-			current_block.y = y;
-			bl_set_current_block(piece - 1);
-			bl_set_next_block(next_piece - 1);
-			ai_suggest_best_block_location();
-		// }
+		b_set_board_from_string(net_current_data);
+		bl_reset(&current_block);
+		current_block.x = x;
+		current_block.y = y;
+		bl_set_current_block(piece - 1);
+		bl_set_next_block(next_piece - 1);
+		ai_suggest_best_block_location();
 	} else if (net_current_code == 310 && strcmp("OK", net_current_command) == 0) {
 		next_piece = 0;
 		sscanf(net_current_data, "%d", &next_piece);
-		mvprintw( 26, 2, "next piece %d", next_piece);
-		refresh();
-		sleep(3);
+		// mvprintw( 26, 2, "next piece %d", next_piece);
+		// refresh();
+		// sleep(3);
 
 		bl_reset(&current_block);
 		bl_push_next_block(next_piece - 1);
@@ -153,10 +148,10 @@ void g_manage_server_commands(void) {
 		num_new_lines = 0;
 		bzero(buffer, sizeof(buffer));
 		sscanf(net_current_data, "%d %s", &num_new_lines, buffer);
-		mvprintw( 26, 2, "num_new_lines %d, buffer: %s", num_new_lines, buffer);
-		mvprintw( 27, 2, "net_current_data: %s", net_current_data);
-		refresh();
-		sleep(3);
+		// mvprintw( 26, 2, "num_new_lines %d, buffer: %s", num_new_lines, buffer);
+		// mvprintw( 27, 2, "net_current_data: %s", net_current_data);
+		// refresh();
+		// sleep(3);
 
 		for (x = 0; x < num_new_lines; x++) {
 			bzero(&line, sizeof(line));
@@ -176,10 +171,10 @@ void g_manage_server_commands(void) {
 		next_piece = 0;		
 		num_new_lines = 0;
 		sscanf(net_current_data, "%d %d %s", &next_piece, &num_new_lines, buffer);
-		mvprintw( 26, 2, "next piece %d, num_new_lines %d, buffer: %s", next_piece,num_new_lines,buffer);
-		mvprintw( 27, 2, "net_current_data: %s", net_current_data);
-		refresh();
-		sleep(3);
+		// mvprintw( 26, 2, "next piece %d, num_new_lines %d, buffer: %s", next_piece,num_new_lines,buffer);
+		// mvprintw( 27, 2, "net_current_data: %s", net_current_data);
+		// refresh();
+		// sleep(3);
 		bl_reset(&current_block);
 		bl_push_next_block(next_piece - 1);
 
@@ -261,7 +256,7 @@ void g_move_block_to_best_location(block_t *block) {
 		return;
 	}
 
-	// Manage rotation
+	// Manage rotation first otherwise the block can get 'stuck' against a wall
 	if (ai_block.rotation > block->rotation && ai_block.rotation != 270) {
 		net_send_command("240 ROTATE_R");
 		// Server accepted the command

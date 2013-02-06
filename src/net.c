@@ -2,6 +2,7 @@
 
 void net_init(void) {
 	int flag;
+	struct timeval tv;
 	net_connected = 0;
 
 	net_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -9,6 +10,11 @@ void net_init(void) {
 		error("ERROR opening socket");
 	}
 	printf("[net_init] net_socket set to %d\n", net_socket);
+
+	// Set a timout option on our socket
+	// tv.tv_sec = 5;
+	// tv.tv_usec = 0;
+	// setsockopt(net_socket, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(struct timeval));
 }
 
 void net_connect(char *ip, int port) {
@@ -46,20 +52,6 @@ void net_send(int socket, char *buffer) {
 	}
 }
 
-// int net_recieve(int socket, char *buffer, int length) {
-// 	int bytes_in_socket = 0;
-
-// 	bytes_in_socket = recv(socket, buffer, length, MSG_PEEK);
-// 	if (debug == 1) {
-// 		printf("[net_recieve] received %d bytes: %s", bytes_in_socket, buffer);
-// 	}
-// 	if (bytes_in_socket > 0) {
-// 		memset(buffer, '\0', length);
-// 		return recv(socket, buffer, length, 0);
-// 	}
-// 	return bytes_in_socket;
-// }
-
 // Le client salue le serveur et lui donne le nom qu'il choisi pour jouer
 // 100 HELLO <nom_client>
 void net_send_name(char *name) {
@@ -90,7 +82,11 @@ void net_send_command(char * send_command) {
 void net_wait_for_response(void) {
 	char receiveBuffer[NET_BUFFER_LENGTH];
 	bzero(receiveBuffer, sizeof(receiveBuffer));
-	recv(net_socket, receiveBuffer, sizeof(receiveBuffer), 0);
+	if (recv(net_socket, receiveBuffer, sizeof(receiveBuffer), 0) == -1) {
+		// An error occured, so set the return command to 501 so that the game requests a DUMP
+		net_current_code = 501;
+		return;
+	}
 
 	net_current_code = 0;
 	bzero(net_current_command, sizeof(net_current_command));
