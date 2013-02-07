@@ -119,6 +119,7 @@ void m_init(void) {
 	cbreak();
 
 	if (auto_mode == 1) {
+		usleep(2000000);
 		net_init();
 		net_connect(game_server_ip, game_server_port);
 		nodelay(stdscr, TRUE); // Do not wait for kb_input
