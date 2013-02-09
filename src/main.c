@@ -1,8 +1,8 @@
-
-
-
-
-
+/*
+Authors: Grant Barry & Eric
+Date: 1012/2013
+Description: Tetris client for CNAM course NSY103 (CNAM, Nord).
+*/
 #include "main.h"
 
 int main(int argc, char *argv[]) {
@@ -94,7 +94,7 @@ void m_manageArgs(int argc, char *argv[]) {
 void m_printHelp(void) {
 	printf("Tetris %s for CNAM course NSY103, 2012/2013\n\n", VERSION);
 
-	printf("main [options]\n\n");
+	printf("tetris_client [options]\n\n");
 
 	printf("Here is a full list of options:\n");
 	printf(" -h VALUE		Sets the AI height weight\n");
@@ -107,6 +107,7 @@ void m_printHelp(void) {
 	printf(" -d             Display debug information\n");
 	printf(" -m             Sets the game to manual mode (user can play Tetris)\n\n");
 	printf("\n\n");
+	printf("Example : tetris_client -s 127.0.0.1 -p 5000\t\tThe client will try to connect to a localhost on port 5000\n");
 }
 
 void m_init(void) {
