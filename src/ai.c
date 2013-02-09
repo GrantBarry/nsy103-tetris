@@ -78,7 +78,7 @@ void ai_suggest_best_block_location(void) {
 				// ........... TODO .......
 
 				// Neuron function
-				result = (numHeight * ai_height_weight) + (numSolidLines * ai_line_weight) + (numEmptyBlocks * ai_empty_blocks_weight);
+				result = (numHeight * ai_height_weight) + (numSolidLines * -1 * ai_line_weight) + (numEmptyBlocks * ai_empty_blocks_weight);
 
 				if (debug == 1) {
 					clear();
@@ -92,7 +92,7 @@ void ai_suggest_best_block_location(void) {
 
 					mvprintw(17, 19, "%d + %d = %d [%d]", testBlock.x, testBlock.sizeX, testBlock.x + testBlock.sizeX, BOARD_WIDTH);
 					mvprintw(18, 19, "%d x %d", testBlock.sizeX, testBlock.sizeY);
-					mvprintw(19, 19, "%f (line = %f), (solid = %f), (empty = %f)", result, numHeight, numSolidLines, numEmptyBlocks);
+					mvprintw(19, 19, "%f (height = %f), (solid = %f), (empty = %f)", result, numHeight, numSolidLines, numEmptyBlocks);
 					mvprintw(20, 19, "ai_block.rotation set to %d", ai_block.rotation);
 					if (ai_block.reflected == 1) {
 						mvprintw(21, 19, "REFLECTED");
