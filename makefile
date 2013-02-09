@@ -8,14 +8,14 @@ BINARY=tetris_client
 CFILES=$(addprefix $(SRC),$(SOURCES))
 BINFILE=$(addprefix $(BIN),$(BINARY))
 
-all: compile run
+all: clean compile run
 
 compile:
 	mkdir -p $(BIN)
 	gcc -o $(BINFILE) $(CFILES) -lncurses
 
 clean:
-	rm $(BINFILE)
+	rm -f $(BINFILE)
 
 run:
 	$(BINFILE)
