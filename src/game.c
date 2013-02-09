@@ -44,7 +44,8 @@ void g_cycle(int kb_input) {
 	bl_move_down(&current_block);
 
 	if (b_does_collide(&current_block) == 1) {
-		if (current_block.y <= 1) {
+		// Only check if the block has reached the top in end-user mode
+		if (auto_mode == 0 && current_block.y <= 1) {
 			g_game_over();
 			return;
 		}

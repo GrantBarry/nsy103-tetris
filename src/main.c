@@ -14,6 +14,9 @@ int main(int argc, char *argv[]) {
 	ai_height_weight = 3.0;
 	ai_line_weight = -2.0;
 	ai_empty_blocks_weight = 5.0;
+	// ai_height_weight = 1.2;
+	// ai_line_weight = 4.0;
+	// ai_empty_blocks_weight = 1.0;
 
 	auto_mode = 1;
 

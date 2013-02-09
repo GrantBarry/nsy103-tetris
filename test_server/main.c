@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
         bzero(buffer, sizeof(buffer));
         recv(connexion_fd, buffer, sizeof(buffer), 0);
         printf("donnees du client : %s\n", buffer);
-        sleep(1);
+        //sleep(1);
 
         if (auto_response(connexion_fd, buffer) != 0) {
             printf("auto_response return != 0\n");
