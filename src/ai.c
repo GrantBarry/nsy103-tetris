@@ -11,6 +11,8 @@ void ai_suggest_best_block_location(void) {
 	block_t blockCopy[4][2]; // A block copy for each rotation (0°, 90°, 180° and 270°) and it's reflection
 	block_t testBlock;
 
+	bl_reset(&ai_block);
+
 	// 0°
 	memcpy(&blockCopy[0][0], &current_block, sizeof(blockCopy[0][0]));
 

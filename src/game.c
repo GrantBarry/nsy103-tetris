@@ -31,7 +31,7 @@ void g_cycle(int kb_input) {
 
 	if (auto_mode == 1) {
 		// Sleep half a second before sending code
-		usleep(500000);
+		usleep(SLEEP_AMOUNT);
 
 		// Move the block to the best location
 		g_move_block_to_best_location(&current_block);
@@ -108,23 +108,23 @@ void g_manage_server_commands(void) {
 	int piece, x, y, next_piece, num_new_lines;
 	int line[BOARD_WIDTH];
 
-	// mvprintw( 26, 2, "enter server commands with %d/%s/%s", net_current_code, net_current_command, net_current_data);
-	// refresh();
-	// usleep(500000);
-
 	if (net_current_code == 140 && strcmp("END", net_current_command) == 0) {
+		// 140 END : Le serveur déclare la partie terminée et coupe la connexion
 		g_game_over();
 		return;
+
 	} else if (net_current_code == 301 && strcmp("OK", net_current_command) == 0) {
+		// 301 : Retour spécial pour la commande 280 DUMP : le serveur envoie une
+		//     copie du tableau.
+		//     La pièce actuelle, de code 1 (barre) est située en (0,0)
+		//     La pièce suivante est une barre (code 1)
+
 		bzero(buffer, sizeof(buffer));
 		piece = 0;
 		x = 0;
 		y = 0;
 		next_piece = 0;
 		sscanf(net_current_data, "%s %d %d %d %d", buffer, &piece, &x, &y, &next_piece);
-		// mvprintw( 26, 2, "piece %d at %d,%d next %d, buffer: %s", piece, x, y, next_piece, buffer);
-		// refresh();
-		// sleep(3);
 
 		b_set_board_from_string(net_current_data);
 		bl_reset(&current_block);
@@ -133,25 +133,31 @@ void g_manage_server_commands(void) {
 		bl_set_current_block(piece - 1);
 		bl_set_next_block(next_piece - 1);
 		ai_suggest_best_block_location();
+
+		return;
+
 	} else if (net_current_code == 310 && strcmp("OK", net_current_command) == 0) {
+		// 310 : Si la pièce est arrivée au pied du tableau. Le serveur envoie alors
+		//     un numéro de pièce (cf. annexe 2)
 		next_piece = 0;
 		sscanf(net_current_data, "%d", &next_piece);
-		// mvprintw( 26, 2, "next piece %d", next_piece);
-		// refresh();
-		// sleep(3);
 
 		bl_reset(&current_block);
 		bl_push_next_block(next_piece - 1);
 
 		ai_suggest_best_block_location();
+
+		return;
 	} else if (net_current_code == 320 && strcmp("OK", net_current_command) == 0) {
+		// 320 : Si une ou plusieurs lignes sont ajoutées (malus) au tableau du client.
+		//     Le serveur envoie alors le nombre de ligne (1,2 ou 3) suivit de la
+		//     description des lignes, sous forme de 0 (case vide) ou 1 (case pleine).
+		//     Les lignes arrivent en un seul mot de (nblignes x largeur) caractères
+		//     (24 caractères 0/1 pour deux lignes de 12 cases de large)
+
 		num_new_lines = 0;
 		bzero(buffer, sizeof(buffer));
 		sscanf(net_current_data, "%d %s", &num_new_lines, buffer);
-		// mvprintw( 26, 2, "num_new_lines %d, buffer: %s", num_new_lines, buffer);
-		// mvprintw( 27, 2, "net_current_data: %s", net_current_data);
-		// refresh();
-		// sleep(3);
 
 		for (x = 0; x < num_new_lines; x++) {
 			bzero(&line, sizeof(line));
@@ -166,15 +172,19 @@ void g_manage_server_commands(void) {
 		}
 
 		ai_suggest_best_block_location();
+
+		return;
+
 	} else if (net_current_code == 330 && strcmp("OK", net_current_command) == 0) {
+		// 330 : Si la pièce est arrivée au pied du tableau et qu'une ou plusieurs
+		//     lignes sont ajoutées au tableau du client. Le serveur envoie alors,
+		//     dans cet ordre, le numéro de pièce, le nombre de ligne et le descriptif
+		//     de la ligne
+
 		bzero(buffer, sizeof(buffer));
 		next_piece = 0;		
 		num_new_lines = 0;
 		sscanf(net_current_data, "%d %d %s", &next_piece, &num_new_lines, buffer);
-		// mvprintw( 26, 2, "next piece %d, num_new_lines %d, buffer: %s", next_piece,num_new_lines,buffer);
-		// mvprintw( 27, 2, "net_current_data: %s", net_current_data);
-		// refresh();
-		// sleep(3);
 		bl_reset(&current_block);
 		bl_push_next_block(next_piece - 1);
 
@@ -191,10 +201,13 @@ void g_manage_server_commands(void) {
 		}
 
 		ai_suggest_best_block_location();
+
+		return;
 	} else if (net_current_code >= 400) {
 		// Pour toute commande incorrecte ou incomprise, on va demander une nouvelle copie de la table
 		net_send_command("280 DUMP");
 		g_manage_server_commands();
+		return;
 	}
 }
 
@@ -275,7 +288,17 @@ void g_move_block_to_best_location(block_t *block) {
 		return;
 	}
 
-	// Manage coordinates
+	// then manage relfection
+	if (ai_block.reflected != block->reflected) {
+		net_send_command("260 INVERSE");
+		// Server accepted the command
+		if (net_current_code >= 300 && net_current_code <= 399) {
+			bl_reflect(block);
+		}
+		return;
+	}
+
+	// and finally, manage coordinates
 	if (block->x < ai_block.x) {
 		net_send_command("210 RIGHT");
 		// Server accepted the command
@@ -289,16 +312,6 @@ void g_move_block_to_best_location(block_t *block) {
 		// Server accepted the command
 		if (net_current_code >= 300 && net_current_code <= 399) {
 			bl_move_left(block);
-		}
-		return;
-	}
-
-	// And relfection
-	if (ai_block.reflected != block->reflected) {
-		net_send_command("260 INVERSE");
-		// Server accepted the command
-		if (net_current_code >= 300 && net_current_code <= 399) {
-			bl_reflect(block);
 		}
 		return;
 	}
