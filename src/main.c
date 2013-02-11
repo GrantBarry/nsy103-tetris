@@ -1,6 +1,6 @@
 /*
 Authors: Grant Barry & Eric
-Date: 1012/2013
+Date: 11/12/2013
 Description: Tetris client for CNAM course NSY103 (CNAM, Nord).
 */
 #include "main.h"
@@ -11,9 +11,9 @@ int main(int argc, char *argv[]) {
 	strcpy(game_server_ip, DEFAULT_SERVER_IP);
 	game_server_port = DEFAULT_SERVER_PORT;
 
-	ai_height_weight = 0.1;
-	ai_line_weight = 2.0;
-	ai_empty_blocks_weight = 0.2;
+	ai_height_weight = 2.0;
+	ai_line_weight = 5.0;
+	ai_empty_blocks_weight = 0.1;
 
 	auto_mode = 1;
 
